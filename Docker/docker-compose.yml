@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_safe_animals
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: safe_animals_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./safe_animals.sql:/docker-entrypoint-initdb.d/safe_animals.sql
+    restart: always
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_safe_animals
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8282:80"
+    restart: always
+
+volumes:
+  db_data:
