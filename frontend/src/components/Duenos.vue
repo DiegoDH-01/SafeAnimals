@@ -128,11 +128,18 @@ export default {
 
     const handleSubmit = async () => {
       error.value = '';
-      // Validación del celular
+
+      // Validación manual de campos requeridos
+      if (!nuevo.value.nombres.trim() || !nuevo.value.apellidos.trim()) {
+        error.value = 'Los campos nombres y apellidos son requeridos.';
+        return;
+      }
+
       if (nuevo.value.celular && !/^\d{10}$/.test(nuevo.value.celular)) {
         error.value = 'El celular debe contener exactamente 10 dígitos numéricos.';
         return;
       }
+
       try {
         const token = localStorage.getItem('token');
         if (editando.value) {
