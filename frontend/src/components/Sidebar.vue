@@ -3,8 +3,8 @@
     <aside v-if="show" class="sidebar" :class="{ 'sidebar-mobile': isMobile, 'sidebar-open': isMobile && show }" v-bind="$attrs">
       <nav>
         <ul>
-          <li class="sidebar-item">Panel de inicio</li>
-          <li class="sidebar-item">Dueños registrados</li>
+          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'inicio' }" @click="$emit('selectMenu', 'inicio')">Panel de inicio</li>
+          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'duenos' }" @click="$emit('selectMenu', 'duenos')">Dueños registrados</li>
           <li class="sidebar-item">Mascotas registradas</li>
           <li class="sidebar-item">Agenda / Citas</li>
           <li class="sidebar-item">Estados</li>
@@ -22,7 +22,7 @@
 <script>
 export default {
   name: 'Sidebar',
-  emits: ['close'],
+  emits: ['close', 'selectMenu'],
   props: {
     show: {
       type: Boolean,
@@ -31,6 +31,10 @@ export default {
     isMobile: {
       type: Boolean,
       default: false
+    },
+    selectedMenu: {
+      type: String,
+      default: 'inicio'
     }
   },
   inheritAttrs: false
