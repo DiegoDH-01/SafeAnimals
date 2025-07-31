@@ -1,17 +1,10 @@
-const sequelize = require('../config/database');
-const Usuario = require('./usuario');
 const Dueno = require('./dueno');
 const Mascota = require('./mascota');
 
-// Asociaciones
 Dueno.hasMany(Mascota, { foreignKey: 'idDueno', as: 'mascotas' });
 Mascota.belongsTo(Dueno, { foreignKey: 'idDueno', as: 'dueno' });
 
-const db = {
-  sequelize,
-  Usuario,
+module.exports = {
   Dueno,
   Mascota,
 };
-
-module.exports = db;

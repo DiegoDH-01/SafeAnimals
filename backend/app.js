@@ -4,6 +4,7 @@ const cors = require('cors');
 const app = express();
 const usuarioRoutes = require('./routes/usuario.Routes');
 const duenoRoutes = require('./routes/dueno.Routes'); 
+const mascotaRoutes = require('./routes/mascota.Routes');
 
 const db = require('./models');
 
@@ -11,8 +12,10 @@ require('dotenv').config();
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
+
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/duenos', duenoRoutes);
+app.use('/api/mascotas', mascotaRoutes);
 
 db.sequelize.sync({ force: false }) 
   .then(() => {
