@@ -8,7 +8,14 @@
       </button>
     </div>
     <div class="mb-8">
-      <input v-model="search" type="text" placeholder="Buscar por referencia, mascota, usuario..." class="duenos-input" />
+      <div class="flex flex-wrap gap-2 sm:gap-4 items-center">
+        <div class="flex-1 min-w-[220px]">
+          <input v-model="search" type="text" placeholder="Buscar por referencia, mascota, usuario..." class="duenos-input w-full" />
+        </div>
+        <div class="flex-shrink-0">
+          <input v-model="searchFecha" type="date" class="duenos-input w-[170px]" />
+        </div>
+      </div>
     </div>
     <div class="table-container overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm mb-8">
       <table class="table min-w-[600px] w-full text-sm text-left">
@@ -104,6 +111,7 @@ export default {
   setup() {
     const citas = ref([]);
     const search = ref('');
+    const searchFecha = ref('');
     const error = ref('');
     const showModal = ref(false);
     const editando = ref(false);
@@ -173,7 +181,12 @@ export default {
         closeModal();
         await fetchCitas();
       } catch (e) {
-        error.value = e.response?.data?.message || 'Error al guardar cita';
+        error.value =
+          e.response?.data?.message ||
+          e.response?.data?.mensaje ||
+          e.response?.data?.error ||
+          (typeof e.response?.data === 'string' ? e.response.data : null) ||
+          'Error al guardar cita';
       }
     };
 
@@ -209,13 +222,20 @@ export default {
 
     const filteredCitas = computed(() => {
       let arr = Array.isArray(citas.value) ? citas.value.filter(c => c && c.idServicio) : [];
-      if (!search.value) return arr;
-      const s = search.value.toLowerCase();
-      return arr.filter(c =>
-        (c.referencia && c.referencia.toLowerCase().includes(s)) ||
-        (c.mascota && c.mascota.toLowerCase().includes(s)) ||
-        (c.usuario && c.usuario.toLowerCase().includes(s))
-      );
+      // Filtro por texto
+      if (search.value) {
+        const s = search.value.toLowerCase();
+        arr = arr.filter(c =>
+          (c.referencia && c.referencia.toLowerCase().includes(s)) ||
+          (c.mascota && c.mascota.toLowerCase().includes(s)) ||
+          (c.usuario && c.usuario.toLowerCase().includes(s))
+        );
+      }
+      // Filtro por fecha
+      if (searchFecha.value) {
+        arr = arr.filter(c => c.fechaRegistro && c.fechaRegistro.startsWith(searchFecha.value));
+      }
+      return arr;
     });
 
     const totalPages = computed(() => {
@@ -234,7 +254,7 @@ export default {
       if (currentPage.value > 1) currentPage.value--;
     };
 
-    watch(search, () => {
+    watch([search, searchFecha], () => {
       currentPage.value = 1;
     });
 
@@ -242,6 +262,7 @@ export default {
       citas,
       search,
       filteredCitas,
+      searchFecha,
       paginatedCitas,
       currentPage,
       totalPages,

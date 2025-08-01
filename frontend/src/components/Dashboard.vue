@@ -27,6 +27,9 @@
         <template v-else-if="selectedMenu === 'citas'">
           <Citas />
         </template>
+        <template v-else-if="selectedMenu === 'estados'">
+          <Estados />
+        </template>
         <template v-else>
           <h1 class="text-[var(--color2)] font-bold tracking-wide mb-6 text-center">Bienvenido al Dashboard de Safe Animals</h1>
           <p>Aquí irá el contenido principal del sistema.</p>
@@ -44,6 +47,7 @@ import Sidebar from './Sidebar.vue';
 import Footer from './Footer.vue';
 import Duenos from './Duenos.vue';
 import Citas from './Citas.vue';
+import Estados from './Estados.vue';
 import { getCurrentUser, logout } from '../services/auth.js';
 
 
@@ -54,7 +58,8 @@ export default {
     Sidebar,
     Footer,
     Duenos,
-    Citas
+    Citas,
+    Estados
   },
   setup() {
 

@@ -8,25 +8,41 @@ async function registrarServicio(data) {
     const { fechaRegistro, referencia, idMascota, idUsuario, idEstadoActual } = data;
 
     if (!idMascota || !idUsuario || !idEstadoActual || !fechaRegistro) {
-        throw new Error('Faltan campos obligatorios');
+        const err = new Error('Faltan campos obligatorios');
+        err.message = 'Faltan campos obligatorios';
+        throw err;
     }
 
     const mascota = await Mascota.findOne({ where: { idMascota, activo: true } });
-    if (!mascota) throw new Error('Mascota no encontrada o inactiva');
+    if (!mascota) {
+        const err = new Error('Mascota no encontrada o inactiva');
+        err.message = 'Mascota no encontrada o inactiva';
+        throw err;
+    }
 
     const servicioDuplicado = await Servicio.findOne({
         where: { idMascota, fechaRegistro, activo: true }
     });
 
     if (servicioDuplicado) {
-        throw new Error('Ya existe un servicio activo para esta mascota en la misma fecha');
+        const err = new Error('Ya existe un servicio activo para esta mascota en la misma fecha');
+        err.message = 'Ya existe un servicio activo para esta mascota en la misma fecha';
+        throw err;
     }
 
     const usuario = await Usuario.findByPk(idUsuario);
-    if (!usuario) throw new Error('Usuario no encontrado');
+    if (!usuario) {
+        const err = new Error('Usuario no encontrado');
+        err.message = 'Usuario no encontrado';
+        throw err;
+    }
 
     const estado = await EstadoServicio.findByPk(idEstadoActual);
-    if (!estado) throw new Error('Estado del servicio inválido');
+    if (!estado) {
+        const err = new Error('Estado del servicio inválido');
+        err.message = 'Estado del servicio inválido';
+        throw err;
+    }
 
     const nuevoServicio = await Servicio.create({
         fechaRegistro,

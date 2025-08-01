@@ -7,7 +7,7 @@
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'duenos' }" @click="$emit('selectMenu', 'duenos')">Dueños registrados</li>
           <li class="sidebar-item">Mascotas registradas</li>
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'citas' }" @click="$emit('selectMenu', 'citas')">Agenda / Citas</li>
-          <li class="sidebar-item">Estados</li>
+          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'estados' }" @click="$emit('selectMenu', 'estados')">Estados</li>
           <li class="sidebar-item">Notificaciones</li>
           <li class="sidebar-item">Historial</li>
           <li class="sidebar-item">Reporte Diario</li>
