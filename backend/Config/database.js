@@ -13,4 +13,6 @@ const sequelize = new Sequelize(
   }
 );
 
+// <- aquí
+
 module.exports = sequelize;
