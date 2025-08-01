@@ -26,9 +26,9 @@
           <tr v-for="cita in paginatedCitas" :key="cita.idServicio" class="hover:bg-[var(--color2)/10] border-b last:border-0">
             <td class="px-4 sm:px-6 py-4 font-medium whitespace-nowrap">{{ cita.fechaRegistro }}</td>
             <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.referencia }}</td>
-            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.mascota?.nombre || cita.idMascota }}</td>
-            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.usuario?.nombres || cita.idUsuario }}</td>
-            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.estado?.nombreEstado || cita.idEstadoActual }}</td>
+            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.mascota }}</td>
+            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.usuario }}</td>
+            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.estado }}</td>
             <td class="px-4 sm:px-6 py-4 text-center table-actions whitespace-nowrap">
               <button @click="editCita(cita)" class="icon-btn" title="Editar">
                 <img src="../assets/edit.svg" alt="Editar" width="28" height="28" />
@@ -63,16 +63,22 @@
             </div>
             <select v-model="form.idMascota" class="modal-input" required>
               <option value="" disabled>Selecciona una mascota</option>
-              <option v-for="mascota in mascotas" :key="mascota.id" :value="mascota.id">{{ mascota.nombre }}</option>
+              <option v-for="m in mascotas" :key="m.id" :value="m.id">{{ m.nombre }}</option>
             </select>
-            <select v-model="form.idUsuario" class="modal-input" required>
-              <option value="" disabled>Selecciona un usuario</option>
-              <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">{{ usuario.nombre }}</option>
+            <input
+              class="modal-input"
+              type="text"
+              :value="usuarios.length ? usuarios[0].nombre : ''"
+              readonly
+              tabindex="-1"
+            />
+            <div v-if="!editando" class="text-xs text-gray-500 mb-2">El usuario guardado será el actual de la sesión</div>
+            <select v-model="form.idEstadoActual" class="modal-input" required :disabled="!editando">
+              <option v-for="e in estados" :key="e.id" :value="e.id" :selected="form.idEstadoActual === e.id">
+                {{ e.nombre }}
+              </option>
             </select>
-            <select v-model="form.idEstadoActual" class="modal-input" required>
-              <option value="" disabled>Selecciona un estado</option>
-              <option v-for="estado in estados" :key="estado.id" :value="estado.id">{{ estado.nombre }}</option>
-            </select>
+            <div v-if="!editando" class="text-xs text-gray-500 mb-2">El estado inicial es <b>Recibido</b></div>
             <div class="modal-actions">
               <button type="button" @click="closeModal" class="modal-btn modal-btn--cancel">Cancelar</button>
               <button type="submit" class="modal-btn">{{ editando ? 'Guardar cambios' : 'Agendar cita' }}</button>
@@ -88,6 +94,10 @@
 <script>
 import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
+import { getCitas } from '../services/cita';
+import { getMascotas } from '../services/mascota';
+import { getCurrentUser } from '../services/auth';
+import { getEstados } from '../services/estado';
 
 export default {
   name: 'Citas',
@@ -101,42 +111,32 @@ export default {
     const form = ref({ fechaRegistro: '', referencia: '', idMascota: '', idUsuario: '', idEstadoActual: '' });
     const mascotas = ref([]);
     const usuarios = ref([]);
+    const currentUser = ref(null);
     const estados = ref([]);
     // Paginación
     const currentPage = ref(1);
     const pageSize = ref(10);
 
     const fetchCitas = async () => {
-      try {
-        const res = await axios.get('/api/servicios');
-        citas.value = res.data;
-      } catch {
-        citas.value = [];
-      }
+      citas.value = await getCitas();
     };
     const fetchMascotas = async () => {
-      try {
-        const res = await axios.get('/api/mascotas');
-        mascotas.value = res.data;
-      } catch {
-        mascotas.value = [];
-      }
+      mascotas.value = await getMascotas();
     };
     const fetchUsuarios = async () => {
-      try {
-        const res = await axios.get('/api/usuarios');
-        usuarios.value = res.data;
-      } catch {
+      const user = await getCurrentUser();
+      if (user) {
+        usuarios.value = [{ id: user.id, nombre: user.nombres || user.username || 'Usuario' }];
+        currentUser.value = user;
+        return usuarios.value[0];
+      } else {
         usuarios.value = [];
+        currentUser.value = null;
+        return null;
       }
     };
     const fetchEstados = async () => {
-      try {
-        const res = await axios.get('/api/estadoservicio');
-        estados.value = res.data;
-      } catch {
-        estados.value = [];
-      }
+      estados.value = await getEstados();
     };
 
     const openModal = () => {
@@ -144,7 +144,8 @@ export default {
       error.value = '';
       editando.value = false;
       idEditando.value = null;
-      form.value = { fechaRegistro: '', referencia: '', idMascota: '', idUsuario: '', idEstadoActual: '' };
+      const user = currentUser.value;
+      form.value = { fechaRegistro: '', referencia: '', idMascota: '', idUsuario: user && user.id ? Number(user.id) : null, idEstadoActual: 1 };
     };
     const closeModal = () => {
       showModal.value = false;
@@ -157,10 +158,17 @@ export default {
     const handleSubmit = async () => {
       error.value = '';
       try {
+        // Siempre asignar el usuario actual antes de enviar
+        const user = await getCurrentUser();
+        form.value.idUsuario = user && (user.idUsuario || user.id) ? Number(user.idUsuario || user.id) : null;
+        if (!form.value.idUsuario) {
+          error.value = 'No se detectó usuario en sesión.';
+          return;
+        }
         if (editando.value) {
-          await axios.put(`/api/servicios/${idEditando.value}`, form.value);
+          await axios.put(`http://localhost:3000/api/servicios/${idEditando.value}`, form.value);
         } else {
-          await axios.post('/api/servicios', form.value);
+          await axios.post('http://localhost:3000/api/servicios', form.value);
         }
         closeModal();
         await fetchCitas();
@@ -185,29 +193,28 @@ export default {
     const deleteCita = async (cita) => {
       if (!confirm('¿Seguro que deseas eliminar esta cita?')) return;
       try {
-        await axios.delete(`/api/servicios/${cita.idServicio}`);
+        await axios.delete(`http://localhost:3000/api/servicios/${cita.idServicio}`);
         await fetchCitas();
       } catch (e) {
         alert(e.response?.data?.message || 'Error al eliminar cita');
       }
     };
 
-    onMounted(() => {
+    onMounted(async () => {
+      await fetchUsuarios();
       fetchCitas();
       fetchMascotas();
-      fetchUsuarios();
       fetchEstados();
     });
 
     const filteredCitas = computed(() => {
-      // Filtrar elementos nulos/vacíos y aplicar búsqueda
       let arr = Array.isArray(citas.value) ? citas.value.filter(c => c && c.idServicio) : [];
       if (!search.value) return arr;
       const s = search.value.toLowerCase();
       return arr.filter(c =>
         (c.referencia && c.referencia.toLowerCase().includes(s)) ||
-        (c.mascota?.nombre && c.mascota.nombre.toLowerCase().includes(s)) ||
-        (c.usuario?.nombres && c.usuario.nombres.toLowerCase().includes(s))
+        (c.mascota && c.mascota.toLowerCase().includes(s)) ||
+        (c.usuario && c.usuario.toLowerCase().includes(s))
       );
     });
 

@@ -8,7 +8,7 @@ const Servicio = require('./servicio');
 const EstadoServicio = require('./estadoServicio');
 
 // Aplicar asociaciones
-require('./associations'); // ejecuta y aplica las relaciones
+require('./associations');
 
 // Exportar todos los modelos y la instancia de Sequelize
 const db = {
