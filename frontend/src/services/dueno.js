@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+
 export async function getDuenos() {
   const token = localStorage.getItem('token');
   try {
@@ -10,4 +11,4 @@ export async function getDuenos() {
   } catch (e) {
     return [];
   }
-} 
+}

@@ -24,6 +24,12 @@
         <template v-if="selectedMenu === 'duenos'">
           <Duenos />
         </template>
+        <template v-else-if="selectedMenu === 'citas'">
+          <Citas />
+        </template>
+        <template v-else-if="selectedMenu === 'estados'">
+          <Estados />
+        </template>
         <template v-else>
           <h1 class="text-[var(--color2)] font-bold tracking-wide mb-6 text-center">Bienvenido al Dashboard de Safe Animals</h1>
           <p>Aquí irá el contenido principal del sistema.</p>
@@ -40,7 +46,10 @@ import Navbar from './Navbar.vue';
 import Sidebar from './Sidebar.vue';
 import Footer from './Footer.vue';
 import Duenos from './Duenos.vue';
+import Citas from './Citas.vue';
+import Estados from './Estados.vue';
 import { getCurrentUser, logout } from '../services/auth.js';
+
 
 export default {
   name: 'Dashboard',
@@ -48,9 +57,12 @@ export default {
     Navbar,
     Sidebar,
     Footer,
-    Duenos
+    Duenos,
+    Citas,
+    Estados
   },
   setup() {
+
     const sidebarOpen = ref(false);
     const isMobile = ref(window.innerWidth <= 900);
     const username = ref('');
@@ -65,6 +77,7 @@ export default {
     const toggleSidebar = () => {
       sidebarOpen.value = !sidebarOpen.value;
     };
+
 
     const fetchUser = async () => {
       try {
@@ -95,6 +108,9 @@ export default {
 
     return { sidebarOpen, isMobile, toggleSidebar, username, role, handleLogout, selectedMenu };
   }
+
 };
 </script>
+
+
 
