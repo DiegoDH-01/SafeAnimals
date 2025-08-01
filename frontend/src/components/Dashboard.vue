@@ -42,15 +42,17 @@ import Footer from './Footer.vue';
 import Duenos from './Duenos.vue';
 import { getCurrentUser, logout } from '../services/auth.js';
 
+
 export default {
   name: 'Dashboard',
   components: {
     Navbar,
     Sidebar,
     Footer,
-    Duenos
+    Duenos,
   },
   setup() {
+
     const sidebarOpen = ref(false);
     const isMobile = ref(window.innerWidth <= 900);
     const username = ref('');
@@ -65,6 +67,7 @@ export default {
     const toggleSidebar = () => {
       sidebarOpen.value = !sidebarOpen.value;
     };
+
 
     const fetchUser = async () => {
       try {
@@ -95,6 +98,9 @@ export default {
 
     return { sidebarOpen, isMobile, toggleSidebar, username, role, handleLogout, selectedMenu };
   }
+
 };
 </script>
+
+
 
