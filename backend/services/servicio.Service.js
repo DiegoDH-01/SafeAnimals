@@ -93,8 +93,20 @@ async function obtenerTodos() {
  * Obtener todos los servicios ENTREGADOS (con mascota, estado y usuario)
  */
 async function obtenerEntregados() {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const mañana = new Date(hoy);
+  mañana.setDate(hoy.getDate() + 1);
+
   return await Servicio.findAll({
-    where: { activo: true },
+    where: {
+      activo: true,
+      fechaFinalizacion: {
+        [Op.gte]: hoy,
+        [Op.lt]: mañana
+      }
+    },
     include: [
       {
         model: Mascota,
@@ -111,11 +123,11 @@ async function obtenerEntregados() {
         as: 'estado',
         attributes: ['idEstado', 'nombreEstado'],
         where: {
-          nombreEstado: { [Op.eq]: 'Entregado' } // Solo los entregados
+          nombreEstado: { [Op.eq]: 'Entregado' }
         }
       }
     ],
-    order: [['created_at', 'DESC']]
+    order: [['fechaFinalizacion', 'DESC']]
   });
 }
 
