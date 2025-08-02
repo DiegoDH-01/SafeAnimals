@@ -2,9 +2,9 @@ name: Vitest CI
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ main ]
   pull_request:
-    branches: [ dev ]
+    branches: [ main ]
 
 jobs:
   test:
@@ -20,7 +20,9 @@ jobs:
           node-version: 18
 
       - name: 📦 Instalar dependencias
-        run: npm cli
+        run: npm install
+        working-directory: frontend
 
       - name: 🧪 Ejecutar pruebas con Vitest
         run: npm test
+        working-directory: frontend
