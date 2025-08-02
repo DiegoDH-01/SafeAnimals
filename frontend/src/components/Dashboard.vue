@@ -11,6 +11,7 @@
         <img src="../assets/logo.png" alt="Logo Safe Animals" class="max-w-[120px] h-auto" />
       </template>
     </Navbar>
+
     <div class="flex flex-1 min-h-0 flex-row max-[900px]:flex-col">
       <Sidebar
         class="shrink-0"
@@ -20,16 +21,31 @@
         @selectMenu="selectedMenu = $event"
         :selectedMenu="selectedMenu"
       />
-      <main class="flex-1 flex flex-col justify-start min-w-0 min-h-[400px] bg-[var(--color-form-bg)] rounded-[18px] m-8 mr-0 p-10 shadow-[0_6px_32px_0_rgba(89,38,63,0.10)] max-[900px]:m-4 max-[900px]:rounded-[12px] max-[900px]:p-3 max-[600px]:m-2 max-[600px]:rounded-[8px] max-[600px]:p-1">
+
+      <main
+        class="flex-1 flex flex-col justify-start min-w-0 min-h-[400px] bg-[var(--color-form-bg)] rounded-[18px] m-8 mr-0 p-10 shadow-[0_6px_32px_0_rgba(89,38,63,0.10)] max-[900px]:m-4 max-[900px]:rounded-[12px] max-[900px]:p-3 max-[600px]:m-2 max-[600px]:rounded-[8px] max-[600px]:p-1"
+      >
         <template v-if="selectedMenu === 'duenos'">
           <Duenos />
         </template>
+        <template v-else-if="selectedMenu === 'mascotas'">
+          <Mascotas />
+        </template>
+        <template v-else-if="selectedMenu === 'citas'">
+          <Citas />
+        </template>
+        <template v-else-if="selectedMenu === 'estados'">
+          <Estados />
+        </template>
         <template v-else>
-          <h1 class="text-[var(--color2)] font-bold tracking-wide mb-6 text-center">Bienvenido al Dashboard de Safe Animals</h1>
-          <p>Aquí irá el contenido principal del sistema.</p>
+          <h1 class="text-[var(--color2)] font-bold tracking-wide mb-6 text-center">
+            Bienvenido al Dashboard de Safe Animals
+          </h1>
+          <p class="text-center">Aquí irá el contenido principal del sistema.</p>
         </template>
       </main>
     </div>
+
     <Footer class="shrink-0" />
   </div>
 </template>
@@ -40,6 +56,9 @@ import Navbar from './Navbar.vue';
 import Sidebar from './Sidebar.vue';
 import Footer from './Footer.vue';
 import Duenos from './Duenos.vue';
+import Mascotas from './Mascotas.vue';
+import Citas from './Citas.vue';
+import Estados from './Estados.vue';
 import { getCurrentUser, logout } from '../services/auth.js';
 
 export default {
@@ -48,7 +67,10 @@ export default {
     Navbar,
     Sidebar,
     Footer,
-    Duenos
+    Duenos,
+    Mascotas,
+    Citas,
+    Estados
   },
   setup() {
     const sidebarOpen = ref(false);
@@ -89,12 +111,20 @@ export default {
       window.addEventListener('resize', handleResize);
       fetchUser();
     });
+
     onBeforeUnmount(() => {
       window.removeEventListener('resize', handleResize);
     });
 
-    return { sidebarOpen, isMobile, toggleSidebar, username, role, handleLogout, selectedMenu };
+    return {
+      sidebarOpen,
+      isMobile,
+      toggleSidebar,
+      username,
+      role,
+      handleLogout,
+      selectedMenu
+    };
   }
 };
 </script>
-
