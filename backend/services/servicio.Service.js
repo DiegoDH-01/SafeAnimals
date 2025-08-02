@@ -89,6 +89,36 @@ async function obtenerTodos() {
   });
 }
 
+/**
+ * Obtener todos los servicios ENTREGADOS (con mascota, estado y usuario)
+ */
+async function obtenerEntregados() {
+  return await Servicio.findAll({
+    where: { activo: true },
+    include: [
+      {
+        model: Mascota,
+        as: 'mascota',
+        include: [{ model: require('../models').Dueno, as: 'dueno' }]
+      },
+      {
+        model: Usuario,
+        as: 'usuario',
+        attributes: ['idUsuario', 'nombres', 'apellidos', 'email', 'rol']
+      },
+      {
+        model: EstadoServicio,
+        as: 'estado',
+        attributes: ['idEstado', 'nombreEstado'],
+        where: {
+          nombreEstado: { [Op.eq]: 'Entregado' } // Solo los entregados
+        }
+      }
+    ],
+    order: [['created_at', 'DESC']]
+  });
+}
+
 
 /**
  * Obtener un servicio activo por ID
@@ -259,6 +289,7 @@ async function eliminarServicio(idServicio) {
 module.exports = {
     registrarServicio,
     obtenerTodos,
+    obtenerEntregados,
     obtenerPorId,
     actualizarEstado,
     eliminarServicio,

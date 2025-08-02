@@ -7,6 +7,9 @@ router.post('/', servicioController.registrar);
 
 // Listar todos los servicios
 router.get('/', servicioController.listarTodos);
+// Listar servicios que ya fueron entregados
+router.get('/entregados', servicioController.listarEntregados);
+
 
 // Obtener un servicio por ID
 router.get('/:id', servicioController.obtenerPorId);
