@@ -3,7 +3,9 @@
     <div class="flex justify-between items-center mb-8">
       <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Mascotas registradas</h2>
       <button @click="openModal" class="btn text-xs flex items-center gap-1 w-full sm:w-auto py-3 sm:py-2">
+        
         <img src="../assets/add.svg" alt="Agregar" width="20" height="20" />
+        
         <span>Agregar mascota</span>
       </button>
     </div>
@@ -28,7 +30,10 @@
             <td class="px-4 py-4 font-medium">{{ m.nombre }}</td>
             <td class="px-4 py-4">{{ m.raza }}</td>
             <td class="px-4 py-4">
-              <img :src="m.foto" alt="Foto" class="w-12 h-12 object-cover rounded" />
+              <img :src="`http://localhost:3000/uploads/${m.foto}`" alt="Foto" class="w-12 h-12 object-cover rounded" />
+
+              <!-- <img :src="m.foto" alt="Foto" class="w-12 h-12 object-cover rounded" />
+             -->
             </td>
             <td class="px-4 py-4">{{ m.duenoNombre || 'Sin asignar' }}</td>
             <td class="px-4 py-4 text-center">
@@ -62,7 +67,11 @@
           <form @submit.prevent="handleSubmit" class="modal-form">
             <input v-model="mascota.nombre" type="text" placeholder="Nombre *" class="modal-input" required />
             <input v-model="mascota.raza" type="text" placeholder="Raza *" class="modal-input" required />
-            <input v-model="mascota.foto" type="url" placeholder="URL de la foto *" class="modal-input" required />
+            <input type="file" accept="image/*" @change="handleFileChange" class="modal-input" :required="!editando" />
+
+
+            <!-- <input v-model="mascota.foto" type="url" placeholder="URL de la foto *" class="modal-input" required />
+             -->
             <select v-model="mascota.idDueno" class="modal-input" required>
               <option disabled value="">Seleccionar dueño</option>
               <option v-for="d in duenos" :key="d.idDueno" :value="d.idDueno">
@@ -101,6 +110,11 @@ export default {
     const error = ref('');
     const currentPage = ref(1);
     const pageSize = ref(10);
+    const selectedFile = ref(null);
+
+    const handleFileChange = (event) => {
+      selectedFile.value = event.target.files[0];
+    };
 
     const fetchMascotas = async () => {
       const res = await axios.get('http://localhost:3000/api/mascotas');
@@ -118,6 +132,7 @@ export default {
     const openModal = () => {
       showModal.value = true;
       error.value = '';
+      selectedFile.value = null;
     };
 
     const closeModal = () => {
@@ -125,32 +140,48 @@ export default {
       editando.value = false;
       mascota.value = { nombre: '', raza: '', foto: '', idDueno: '' };
       error.value = '';
+      selectedFile.value = null;
     };
 
     const handleSubmit = async () => {
       error.value = '';
-      if (!mascota.value.nombre || !mascota.value.raza || !mascota.value.foto || !mascota.value.idDueno) {
-        error.value = 'Todos los campos son requeridos';
+      if (!mascota.value.nombre || !mascota.value.raza || !mascota.value.idDueno || (!editando.value && !selectedFile.value)) {
+        error.value = 'Todos los campos son requeridossss';
         return;
       }
-      const token = localStorage.getItem('token');
-      try {
-        if (editando.value) {
-          await axios.put(`http://localhost:3000/api/mascotas/${idEditando.value}`, mascota.value, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {}
-          });
-        } else {
-          await axios.post('http://localhost:3000/api/mascotas/registro', mascota.value, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {}
-          });
-          alert('Mascota registrada con éxito');
+
+  const token = localStorage.getItem('token');
+  const formData = new FormData();
+  formData.append('nombre', mascota.value.nombre);
+  formData.append('raza', mascota.value.raza);
+  formData.append('idDueno', mascota.value.idDueno);
+  if (selectedFile.value) {
+    formData.append('foto', selectedFile.value);
+  }
+
+  try {
+    if (editando.value) {
+      await axios.put(`http://localhost:3000/api/mascotas/${idEditando.value}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
         }
-        closeModal();
-        await fetchMascotas();
-      } catch (e) {
-        error.value = e.response?.data?.error || 'Error al guardar la mascota';
-      }
-    };
+      });
+    } else {
+      await axios.post('http://localhost:3000/api/mascotas/registro', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    }
+    closeModal();
+    await fetchMascotas();
+  } catch (e) {
+    error.value = e.response?.data?.error || 'Error al guardar la mascota';
+  }
+};
+
 
     const editMascota = (m) => {
       editando.value = true;
@@ -168,7 +199,7 @@ export default {
       if (!confirm('¿Deseas eliminar esta mascota?')) return;
       const token = localStorage.getItem('token');
       try {
-        await axios.delete(`http://localhost:3000/api/mascotas/${m.id}`, {
+        await axios.delete(`http://localhost:3000/api/mascotas/${m.idMascota}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         await fetchMascotas();
@@ -222,7 +253,8 @@ export default {
       currentPage,
       totalPages,
       nextPage,
-      prevPage
+      prevPage,
+      handleFileChange
     };
   }
 };
