@@ -20,6 +20,8 @@ app.use('/api/duenos', duenoRoutes);
 app.use('/api/mascotas', mascotaRoutes);
 app.use('/api/estadoservicio', estadoServicioRoutes);
 app.use('/api/servicios', servicioRoutes);
+app.use('/uploads', express.static('uploads'));
+
 
 
 db.sequelize.sync({ force: false }) 

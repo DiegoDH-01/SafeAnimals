@@ -1,7 +1,9 @@
 const { Mascota, Dueno } = require('../models');
+const fs = require('fs');
+const path = require('path');
 
 /**
- * Registrar una nueva mascota
+ * Registrar una nueva mascota con foto
  */
 async function registrarMascota(data) {
   const { nombre, raza, foto, idDueno } = data;
@@ -10,13 +12,19 @@ async function registrarMascota(data) {
     throw new Error('El campo idDueno es obligatorio');
   }
 
-  // Validar que el dueño exista y esté activo
   const dueno = await Dueno.findOne({ where: { idDueno, activo: true } });
   if (!dueno) {
     throw new Error('Dueño no encontrado o inactivo');
   }
 
-  const nuevaMascota = await Mascota.create({ nombre, raza, foto, idDueno });
+  const nuevaMascota = await Mascota.create({
+    nombre,
+    raza,
+    foto, // solo el nombre del archivo
+    idDueno,
+    activo: true
+  });
+
   return nuevaMascota;
 }
 
@@ -28,21 +36,21 @@ async function obtenerTodas() {
     where: { activo: true },
     include: [{
       model: Dueno,
-      as: 'dueno', // alias correcto
+      as: 'dueno',
       attributes: ['idDueno', 'nombres', 'apellidos', 'email', 'celular']
     }]
   });
 }
 
 /**
- * Obtener una mascota por su ID (con datos del dueño)
+ * Obtener una mascota por ID
  */
 async function obtenerPorId(idMascota) {
   const mascota = await Mascota.findOne({
     where: { idMascota, activo: true },
     include: [{
       model: Dueno,
-      as: 'dueno', // alias correcto
+      as: 'dueno',
       attributes: ['idDueno', 'nombres', 'apellidos', 'email', 'celular']
     }]
   });
@@ -52,7 +60,7 @@ async function obtenerPorId(idMascota) {
 }
 
 /**
- * Actualizar datos de una mascota
+ * Actualizar datos de una mascota (con reemplazo de imagen si se proporciona)
  */
 async function actualizarMascota(idMascota, data) {
   const mascota = await Mascota.findByPk(idMascota);
@@ -60,12 +68,25 @@ async function actualizarMascota(idMascota, data) {
     throw new Error('Mascota no encontrada o inactiva');
   }
 
-  await mascota.update(data);
+  // Eliminar imagen anterior si se proporciona una nueva
+  if (data.foto && mascota.foto && data.foto !== mascota.foto) {
+    const oldPath = path.join(__dirname, '..', 'uploads', mascota.foto);
+    if (fs.existsSync(oldPath)) {
+      fs.unlinkSync(oldPath);
+    }
+    mascota.foto = data.foto;
+  }
+
+  mascota.nombre = data.nombre || mascota.nombre;
+  mascota.raza = data.raza || mascota.raza;
+  mascota.idDueno = data.idDueno || mascota.idDueno;
+
+  await mascota.save();
   return mascota;
 }
 
 /**
- * Eliminar mascota (lógico)
+ * Eliminación lógica de una mascota
  */
 async function eliminarMascota(idMascota) {
   const mascota = await Mascota.findByPk(idMascota);
