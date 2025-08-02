@@ -9,7 +9,7 @@ const estadoServicioRoutes = require('./routes/estadoServicio.routes');
 const servicioRoutes = require('./routes/servicio.Routes');
 
 const db = require('./models');
-
+const notificacionRoutes = require('./routes/notificacion.Routes');
 require('dotenv').config();
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
@@ -20,6 +20,7 @@ app.use('/api/duenos', duenoRoutes);
 app.use('/api/mascotas', mascotaRoutes);
 app.use('/api/estadoservicio', estadoServicioRoutes);
 app.use('/api/servicios', servicioRoutes);
+app.use('/api/notificaciones', notificacionRoutes);
 app.use('/uploads', express.static('uploads'));
 
 

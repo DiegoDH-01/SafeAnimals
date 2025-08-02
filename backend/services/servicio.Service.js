@@ -1,4 +1,6 @@
 const { Servicio, Mascota, Usuario, EstadoServicio, Dueno } = require('../models');
+const notificacionService = require('./notificacion.Service');
+
 const { Op } = require('sequelize');
 
 /**
@@ -175,10 +177,11 @@ async function avanzarEstado(idServicio) {
   const servicio = await Servicio.findOne({ where: { idServicio, activo: true } });
   if (!servicio) throw new Error('Servicio no encontrado o inactivo');
 
-  const estadoActual = servicio.idEstadoActual;
+  const estadoActual = await EstadoServicio.findByPk(servicio.idEstadoActual);
+  if (!estadoActual) throw new Error('Estado actual inválido');
 
   const siguienteEstado = await EstadoServicio.findOne({
-    where: { idEstado: estadoActual + 1 }
+    where: { idEstado: estadoActual.idEstado + 1 }
   });
 
   if (!siguienteEstado) throw new Error('No se puede avanzar más: ya está en el último estado');
@@ -186,9 +189,31 @@ async function avanzarEstado(idServicio) {
   // Actualizar estado
   servicio.idEstadoActual = siguienteEstado.idEstado;
 
-  // Si es entregado, setear la fechaFinalizacion
+  // Si es Finalizado: enviar notificación de tipo 'finalizado'
+  if (siguienteEstado.nombreEstado.toLowerCase() === 'finalizado') {
+    try {
+      await notificacionService.registrarNotificacion({
+        idServicio,
+        tipo: 'finalizado'
+      });
+      console.log('[SERVICIO] Estado cambiado a Finalizado. Notificación enviada.');
+    } catch (err) {
+      console.error('[NOTIFICACIÓN] Error al enviar mensaje de finalización:', err.message);
+    }
+  }
+
+  // Si es Entregado: registrar fecha y enviar notificación de tipo 'entregado'
   if (siguienteEstado.nombreEstado.toLowerCase() === 'entregado') {
-    servicio.fechaFinalizacion = new Date(); // fecha y hora actual
+    servicio.fechaFinalizacion = new Date();
+    try {
+      await notificacionService.registrarNotificacion({
+        idServicio,
+        tipo: 'entregado'
+      });
+      console.log('[SERVICIO] Estado cambiado a Entregado. Notificación enviada.');
+    } catch (err) {
+      console.error('[NOTIFICACIÓN] Error al enviar mensaje de entrega:', err.message);
+    }
   }
 
   await servicio.save();
