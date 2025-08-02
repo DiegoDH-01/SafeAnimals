@@ -5,7 +5,8 @@
         <ul>
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'inicio' }" @click="$emit('selectMenu', 'inicio')">Panel de inicio</li>
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'duenos' }" @click="$emit('selectMenu', 'duenos')">Dueños registrados</li>
-          <li class="sidebar-item">Mascotas registradas</li>
+          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'mascotas' }" @click="$emit('selectMenu', 'mascotas')">Mascotas registradas</li>
+
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'citas' }" @click="$emit('selectMenu', 'citas')">Agenda / Citas</li>
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'estados' }" @click="$emit('selectMenu', 'estados')">Estados</li>
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'notificaciones' }" @click="$emit('selectMenu', 'notificaciones')">Notificaciones</li>
