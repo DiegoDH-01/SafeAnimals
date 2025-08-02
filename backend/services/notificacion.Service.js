@@ -3,11 +3,8 @@ const twilio = require('twilio');
 
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
-/**
- * Envía un mensaje por WhatsApp al número dado
- */
 async function enviarMensajeWhatsApp(numeroDestino, mensaje) {
-  const numeroFormateado = `whatsapp:+593${numeroDestino.slice(1)}`; // Quito el 0 inicial, agrego +593
+  const numeroFormateado = `whatsapp:+593${numeroDestino.slice(1)}`;
 
   console.log('-----------------------------');
   console.log('[TWILIO] Número original:', numeroDestino);
@@ -26,14 +23,13 @@ async function enviarMensajeWhatsApp(numeroDestino, mensaje) {
 }
 
 /**
- * Registrar una nueva notificación y enviar WhatsApp, si no existe ya para ese servicio
+ * Registrar una nueva notificación y enviar WhatsApp, si no existe ya para ese servicio y tipo
  */
-async function registrarNotificacion({ idServicio, mensaje, medio = 'WhatsApp' }) {
-  if (!idServicio || !mensaje) {
-    throw new Error('Faltan campos obligatorios: idServicio y mensaje');
+async function registrarNotificacion({ idServicio, tipo = 'finalizado', medio = 'WhatsApp' }) {
+  if (!idServicio || !tipo) {
+    throw new Error('Faltan campos obligatorios: idServicio y tipo');
   }
 
-  // Buscar el servicio junto con la mascota y su dueño
   const servicio = await Servicio.findOne({
     where: { idServicio, activo: true },
     include: {
@@ -47,13 +43,14 @@ async function registrarNotificacion({ idServicio, mensaje, medio = 'WhatsApp' }
     throw new Error('Servicio no encontrado o inactivo');
   }
 
-  // Validar que no se haya enviado ya una notificación para este servicio
-  const yaNotificada = await Notificacion.findOne({ where: { idServicio } });
+  const yaNotificada = await Notificacion.findOne({
+    where: { idServicio, mensaje: { [require('sequelize').Op.like]: `%${tipo}%` } }
+  });
+
   if (yaNotificada) {
-    throw new Error('Ya se ha enviado una notificación para este servicio');
+    throw new Error(`Ya se ha enviado una notificación de tipo ${tipo} para este servicio`);
   }
 
-  // Validar que el número del dueño exista
   const numero = servicio.mascota?.dueno?.celular;
   console.log('[DEBUG] Celular recuperado del dueño:', numero);
 
@@ -61,31 +58,36 @@ async function registrarNotificacion({ idServicio, mensaje, medio = 'WhatsApp' }
     throw new Error('Número del dueño inválido o no disponible');
   }
 
-  // Datos para personalizar el mensaje
   const nombreDueno = servicio.mascota?.dueno?.nombres || 'cliente';
   const nombreMascota = servicio.mascota?.nombre || 'tu mascota';
   const tipoServicio = servicio.referencia || 'el servicio';
 
-  // Mensaje final personalizado
-  const mensajePersonalizado = `Hola ${nombreDueno}, el servicio de *${tipoServicio}* para tu mascota ${nombreMascota} ha finalizado exitosamente. 🐶✨\n\nGracias por confiar en SafeAnimals. Puedes pasar a retirarla cuando gustes.`;
+  let mensajePersonalizado = '';
 
-  // Enviar el mensaje por WhatsApp
+  if (tipo === 'finalizado') {
+    mensajePersonalizado = `Hola ${nombreDueno}, el servicio de *${tipoServicio}* para tu mascota ${nombreMascota} ha finalizado exitosamente. 🐶✨
+
+Gracias por confiar en SafeAnimals. Puedes pasar a retirarla cuando gustes.`;
+  } else if (tipo === 'entregado') {
+    mensajePersonalizado = `Hola ${nombreDueno}, confirmamos que tu mascota ${nombreMascota} ya fue entregada luego del servicio de *${tipoServicio}*. 🏠🐾
+
+¡Gracias por preferir SafeAnimals! Hasta la próxima.`;
+  } else {
+    mensajePersonalizado = `Hola ${nombreDueno}, tenemos una actualización sobre tu mascota ${nombreMascota}.`;
+  }
+
   await enviarMensajeWhatsApp(numero, mensajePersonalizado);
 
-  // Registrar la notificación
   const notificacion = await Notificacion.create({
     idServicio,
     mensaje: mensajePersonalizado,
     medio
   });
 
-  console.log('[NOTIFICACIÓN] Registrada correctamente para el servicio', idServicio);
+  console.log(`[NOTIFICACIÓN] (${tipo}) Registrada correctamente para el servicio`, idServicio);
   return notificacion;
 }
 
-/**
- * Obtener todas las notificaciones con info del servicio y dueño
- */
 async function obtenerTodas() {
   return await Notificacion.findAll({
     include: [

@@ -186,25 +186,34 @@ async function avanzarEstado(idServicio) {
 
   if (!siguienteEstado) throw new Error('No se puede avanzar más: ya está en el último estado');
 
-  // Actualizar el estado
+  // Actualizar estado
   servicio.idEstadoActual = siguienteEstado.idEstado;
 
-  // Si pasa a "Finalizado", se envía la notificación
+  // Si es Finalizado: enviar notificación de tipo 'finalizado'
   if (siguienteEstado.nombreEstado.toLowerCase() === 'finalizado') {
     try {
       await notificacionService.registrarNotificacion({
         idServicio,
-        mensaje: 'El servicio ha finalizado.'
+        tipo: 'finalizado'
       });
       console.log('[SERVICIO] Estado cambiado a Finalizado. Notificación enviada.');
     } catch (err) {
-      console.error('[NOTIFICACIÓN] Error al enviar mensaje:', err.message);
+      console.error('[NOTIFICACIÓN] Error al enviar mensaje de finalización:', err.message);
     }
   }
 
-  // Si pasa a "Entregado", se setea la fecha
+  // Si es Entregado: registrar fecha y enviar notificación de tipo 'entregado'
   if (siguienteEstado.nombreEstado.toLowerCase() === 'entregado') {
     servicio.fechaFinalizacion = new Date();
+    try {
+      await notificacionService.registrarNotificacion({
+        idServicio,
+        tipo: 'entregado'
+      });
+      console.log('[SERVICIO] Estado cambiado a Entregado. Notificación enviada.');
+    } catch (err) {
+      console.error('[NOTIFICACIÓN] Error al enviar mensaje de entrega:', err.message);
+    }
   }
 
   await servicio.save();
