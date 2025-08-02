@@ -20,7 +20,7 @@ jobs:
           node-version: 18
 
       - name: 📦 Instalar dependencias
-        run: npm cli
+        run: npm install
 
       - name: 🧪 Ejecutar pruebas con Vitest
         run: npm test
