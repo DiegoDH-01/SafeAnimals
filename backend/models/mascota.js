@@ -27,6 +27,11 @@ const Mascota = sequelize.define('Mascota', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true,
+  },
+  duenio_confirmado: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
   }
 }, {
   tableName: 'mascota',

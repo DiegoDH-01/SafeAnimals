@@ -14,7 +14,10 @@ router.get('/', mascotaController.obtenerTodos);
 router.get('/:id', mascotaController.obtenerPorId);
 
 // Actualizar datos de una mascota
-router.put('/:id', upload.single('foto'), mascotaController.actualizar);
+router.put('/:id', upload.single('foto'), mascotaController.actualizar); // asegúrate de que el campo `duenio_confirmado` sea manejado
+
+// Cambiar estado de duenio_confirmado
+router.put('/:id/verificar', mascotaController.verificarDueno);
 
 // Eliminación lógica de una mascota
 router.delete('/:id', mascotaController.eliminar);

@@ -22,6 +22,7 @@ async function registrarMascota(data) {
     raza,
     foto, // solo el nombre del archivo
     idDueno,
+    duenio_confirmado: false, // nuevo campo
     activo: true
   });
 
@@ -81,6 +82,10 @@ async function actualizarMascota(idMascota, data) {
   mascota.raza = data.raza || mascota.raza;
   mascota.idDueno = data.idDueno || mascota.idDueno;
 
+  if (data.duenio_confirmado !== undefined) {
+    mascota.duenio_confirmado = data.duenio_confirmado;
+  }
+
   await mascota.save();
   return mascota;
 }
@@ -98,10 +103,22 @@ async function eliminarMascota(idMascota) {
   return { mensaje: 'Mascota eliminada correctamente' };
 }
 
+async function verificarDueno(idMascota, confirmado) {
+  const mascota = await Mascota.findByPk(idMascota);
+  if (!mascota || !mascota.activo) {
+    throw new Error('Mascota no encontrada o inactiva');
+  }
+  mascota.duenio_confirmado = confirmado;
+  await mascota.save();
+  return mascota;
+}
+
+
 module.exports = {
   registrarMascota,
   obtenerTodas,
   obtenerPorId,
   actualizarMascota,
-  eliminarMascota
+  eliminarMascota,
+  verificarDueno
 };

@@ -3,7 +3,7 @@ const mascotaService = require('../services/mascota.Service');
 // Crear una nueva mascota con imagen
 async function registrar(req, res) {
   try {
-    const { nombre, raza, idDueno } = req.body;
+    const { nombre, raza, idDueno, duenio_confirmado } = req.body;
     const foto = req.file?.filename || null;
     if (!foto) return res.status(400).json({ error: 'La imagen es requerida' });
 
@@ -14,7 +14,7 @@ async function registrar(req, res) {
       return res.status(400).json({ error: 'Todos los campos son requeridos' });
     }
 
-    const nuevaMascota = await mascotaService.registrarMascota({ nombre, raza, idDueno, foto });
+    const nuevaMascota = await mascotaService.registrarMascota({ nombre, raza, idDueno, foto, duenio_confirmado });
     res.status(201).json(nuevaMascota);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -53,7 +53,7 @@ async function actualizar(req, res) {
       nombre,
       raza,
       idDueno,
-      foto: nuevaFoto // si es undefined, se mantiene la anterior
+      foto: nuevaFoto
     });
 
     res.status(200).json(mascotaActualizada);
@@ -62,6 +62,23 @@ async function actualizar(req, res) {
   }
 }
 
+// Verificar dueño (actualizar duenio_confirmado)
+async function verificarDueno(req, res) {
+  try {
+    const id = req.params.id;
+    const { duenio_confirmado } = req.body; // Extraer duenio_confirmado del cuerpo de la solicitud
+
+    if (duenio_confirmado === undefined) {
+      return res.status(400).json({ error: 'El campo duenio_confirmado es requerido' });
+    }
+
+    const mascotaActualizada = await mascotaService.actualizarMascota(id, { duenio_confirmado });
+
+    res.status(200).json(mascotaActualizada);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
 
 // Eliminación lógica
 async function eliminar(req, res) {
@@ -80,4 +97,5 @@ module.exports = {
   obtenerPorId,
   actualizar,
   eliminar,
+  verificarDueno // Exportar el nuevo método
 };
