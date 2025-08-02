@@ -32,6 +32,9 @@
               <button @click="editDueno(dueno)" class="icon-btn" title="Editar">
                 <img src="../assets/edit.svg" alt="Editar" width="28" height="28" />
               </button>
+              <button @click="viewDueno(dueno)" class="icon-btn" title="Ver">
+                <img src="../assets/ver.svg" alt="Ver" width="28" height="28" />
+              </button>
               <button @click="deleteDueno(dueno)" class="icon-btn icon-btn--delete" title="Eliminar">
                 <img src="../assets/delete.svg" alt="Eliminar" width="28" height="28" />
               </button>
@@ -71,6 +74,23 @@
         </div>
       </div>
     </transition>
+
+    <transition name="fade">
+      <div v-if="showCard" class="modal-bg">
+        <div class="modal card-modal">
+          <button @click="closeCard" class="modal-close" title="Cerrar">
+            <img src="../assets/close.svg" alt="Cerrar" width="32" height="32" />
+          </button>
+          <h3 class="modal-title">Datos del dueño</h3>
+          <div class="card-content">
+            <div class="card-row"><strong>Nombres:</strong> {{ duenoCard.nombres }}</div>
+            <div class="card-row"><strong>Apellidos:</strong> {{ duenoCard.apellidos }}</div>
+            <div class="card-row"><strong>Celular:</strong> {{ duenoCard.celular || 'No registrado' }}</div>
+            <div class="card-row"><strong>Email:</strong> {{ duenoCard.email || 'No registrado' }}</div>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -87,6 +107,25 @@
   background: #fff;
   outline: none;
   transition: border 0.2s;
+}
+
+.card-modal {
+  min-width: 320px;
+  max-width: 400px;
+  padding: 2rem 1.5rem;
+}
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.card-row {
+  font-size: 1.1rem;
+  color: var(--color2);
+  background: #f7f7fa;
+  padding: 0.7rem 1rem;
+  border-radius: 0.5rem;
 }
 </style>
 
@@ -106,6 +145,9 @@ export default {
     const editando = ref(false);
     const idEditando = ref(null);
     const nuevo = ref({ nombres: '', apellidos: '', celular: '', email: '' });
+    // Card modal
+    const showCard = ref(false);
+    const duenoCard = ref({ nombres: '', apellidos: '', celular: '', email: '' });
     // Paginación
     const currentPage = ref(1);
     const pageSize = ref(10);
@@ -124,6 +166,15 @@ export default {
       idEditando.value = null;
       nuevo.value = { nombres: '', apellidos: '', celular: '', email: '' };
       error.value = '';
+    };
+
+    const viewDueno = (dueno) => {
+      duenoCard.value = { ...dueno };
+      showCard.value = true;
+    };
+    const closeCard = () => {
+      showCard.value = false;
+      duenoCard.value = { nombres: '', apellidos: '', celular: '', email: '' };
     };
 
     const handleSubmit = async () => {
@@ -229,6 +280,7 @@ export default {
       editando,
       editDueno,
       deleteDueno
+      , showCard, duenoCard, viewDueno, closeCard
     };
   }
 };

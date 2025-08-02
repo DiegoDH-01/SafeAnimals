@@ -28,9 +28,12 @@
         <template v-if="selectedMenu === 'duenos'">
           <Duenos />
         </template>
+
         <template v-else-if="selectedMenu === 'mascotas'">
           <Mascotas />
         </template>
+
+
         <template v-else-if="selectedMenu === 'citas'">
           <Citas />
         </template>
@@ -61,6 +64,7 @@ import Citas from './Citas.vue';
 import Estados from './Estados.vue';
 import { getCurrentUser, logout } from '../services/auth.js';
 
+
 export default {
   name: 'Dashboard',
   components: {
@@ -73,6 +77,7 @@ export default {
     Estados
   },
   setup() {
+
     const sidebarOpen = ref(false);
     const isMobile = ref(window.innerWidth <= 900);
     const username = ref('');
@@ -87,6 +92,7 @@ export default {
     const toggleSidebar = () => {
       sidebarOpen.value = !sidebarOpen.value;
     };
+
 
     const fetchUser = async () => {
       try {
@@ -126,5 +132,6 @@ export default {
       selectedMenu
     };
   }
+
 };
 </script>
