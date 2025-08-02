@@ -6,6 +6,7 @@ const Dueno = require('./dueno');
 const Mascota = require('./mascota');
 const Servicio = require('./servicio');
 const EstadoServicio = require('./estadoServicio');
+const Notificacion = require('./notificacion');
 
 // Aplicar asociaciones
 require('./associations');
@@ -17,7 +18,9 @@ const db = {
   Dueno,
   Mascota,
   Servicio,
-  EstadoServicio
+  EstadoServicio,
+  Notificacion,
+
 };
 
 module.exports = db;
