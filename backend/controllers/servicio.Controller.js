@@ -1,5 +1,18 @@
 const servicioService = require('../services/servicio.Service');
 
+const { Servicio } = require('../models');
+
+async function obtenerTodosLosServicios(req, res) {
+  try {
+    const servicios = await servicioService.obtenerHistorialServicios();
+    res.status(200).json(servicios);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener historial: ' + error.message });
+  }
+}
+
+
+
 /**
  * POST /api/servicios
  * Registrar un nuevo servicio
@@ -119,5 +132,6 @@ module.exports = {
   cambiarEstado,
   avanzarEstado,
   retrocederEstado,
-  eliminar
+  eliminar,
+  obtenerTodosLosServicios
 };

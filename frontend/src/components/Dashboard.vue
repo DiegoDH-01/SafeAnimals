@@ -40,6 +40,12 @@
         <template v-else-if="selectedMenu === 'estados'">
           <Estados />
         </template>
+        <template v-else-if="selectedMenu === 'historial'">
+          <Historial />
+        </template>
+        <template v-else-if="selectedMenu === 'notificaciones'">
+          <Notificaciones />
+        </template>
         <template v-else>
           <h1 class="text-[var(--color2)] font-bold tracking-wide mb-6 text-center">
             Bienvenido al Dashboard de Safe Animals
@@ -54,6 +60,7 @@
 </template>
 
 <script>
+
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import Navbar from './Navbar.vue';
 import Sidebar from './Sidebar.vue';
@@ -62,6 +69,8 @@ import Duenos from './Duenos.vue';
 import Mascotas from './Mascotas.vue';
 import Citas from './Citas.vue';
 import Estados from './Estados.vue';
+import Notificaciones from './Notificaciones.vue';
+import Historial from './HistorialServicios.vue';
 import { getCurrentUser, logout } from '../services/auth.js';
 
 
@@ -74,7 +83,9 @@ export default {
     Duenos,
     Mascotas,
     Citas,
-    Estados
+    Estados,
+    Notificaciones,
+    Historial
   },
   setup() {
 

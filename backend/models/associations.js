@@ -3,7 +3,7 @@ const Mascota = require('./mascota');
 const Usuario = require('./usuario');
 const Servicio = require('./servicio');
 const EstadoServicio = require('./estadoServicio');
-
+const Notificacion = require('./notificacion');
 // Asociaciones entre Dueno y Mascota
 Dueno.hasMany(Mascota, { foreignKey: 'idDueno', as: 'mascotas' });
 Mascota.belongsTo(Dueno, { foreignKey: 'idDueno', as: 'dueno' });
@@ -20,10 +20,15 @@ Servicio.belongsTo(Usuario, { foreignKey: 'idUsuario', as: 'usuario' });
 EstadoServicio.hasMany(Servicio, { foreignKey: 'idEstadoActual', as: 'servicios' });
 Servicio.belongsTo(EstadoServicio, { foreignKey: 'idEstadoActual', as: 'estado' });
 
+// Asociación entre Servicio y Notificación
+Servicio.hasMany(Notificacion, { foreignKey: 'idServicio', as: 'notificaciones' });
+Notificacion.belongsTo(Servicio, { foreignKey: 'idServicio', as: 'servicio' });
+
 module.exports = {
   Dueno,
   Mascota,
   Usuario,
   Servicio,
-  EstadoServicio
+  EstadoServicio,
+  Notificacion
 };

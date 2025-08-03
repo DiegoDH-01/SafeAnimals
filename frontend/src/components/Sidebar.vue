@@ -9,8 +9,9 @@
 
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'citas' }" @click="$emit('selectMenu', 'citas')">Agenda / Citas</li>
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'estados' }" @click="$emit('selectMenu', 'estados')">Estados</li>
-          <li class="sidebar-item">Notificaciones</li>
-          <li class="sidebar-item">Historial</li>
+          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'notificaciones' }" @click="$emit('selectMenu', 'notificaciones')">Notificaciones</li>
+          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'historial' }"@click="$emit('selectMenu', 'historial')">Historial de Servicios</li>
+
           <li class="sidebar-item">Reporte Diario</li>
         </ul>
       </nav>
