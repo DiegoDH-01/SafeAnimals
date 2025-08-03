@@ -1,9 +1,26 @@
 const sequelize = require('../config/database');
-const Usuario = require('./usuario');
 
+// Importar todos los modelos
+const Usuario = require('./usuario');
+const Dueno = require('./dueno');
+const Mascota = require('./mascota');
+const Servicio = require('./servicio');
+const EstadoServicio = require('./estadoServicio');
+const Notificacion = require('./notificacion');
+
+// Aplicar asociaciones
+require('./associations');
+
+// Exportar todos los modelos y la instancia de Sequelize
 const db = {
   sequelize,
   Usuario,
+  Dueno,
+  Mascota,
+  Servicio,
+  EstadoServicio,
+  Notificacion,
+
 };
 
 module.exports = db;
