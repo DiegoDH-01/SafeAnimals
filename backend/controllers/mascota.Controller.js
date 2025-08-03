@@ -72,7 +72,7 @@ async function verificarDueno(req, res) {
       return res.status(400).json({ error: 'El campo duenio_confirmado es requerido' });
     }
 
-    const mascotaActualizada = await mascotaService.actualizarMascota(id, { duenio_confirmado });
+    const mascotaActualizada = await mascotaService.verificarDueno(id, duenio_confirmado);
 
     res.status(200).json(mascotaActualizada);
   } catch (error) {
