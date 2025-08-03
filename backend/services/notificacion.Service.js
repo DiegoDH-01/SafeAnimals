@@ -1,7 +1,8 @@
 const { Notificacion, Servicio, Mascota, Dueno } = require('../models');
 const twilio = require('twilio');
 
-const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
+
+let client = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
 async function enviarMensajeWhatsApp(numeroDestino, mensaje) {
   const numeroFormateado = `whatsapp:+593${numeroDestino.slice(1)}`;
@@ -107,7 +108,12 @@ async function obtenerTodas() {
   });
 }
 
+// ✅ para test: función de inyección
+function __setTwilioClient(mockedClient) {
+  client = mockedClient
+}
 module.exports = {
   registrarNotificacion,
-  obtenerTodas
+  obtenerTodas,
+  __setTwilioClient
 };
