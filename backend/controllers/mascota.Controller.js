@@ -1,4 +1,5 @@
 const mascotaService = require('../services/mascota.Service');
+const { auditar } = require('../utils/auditoria'); // ← importar utilidad
 
 // Crear una nueva mascota con imagen
 async function registrar(req, res) {
@@ -8,13 +9,19 @@ async function registrar(req, res) {
     if (!foto) return res.status(400).json({ error: 'La imagen es requerida' });
 
     if (!nombre || !raza || !idDueno || !foto) {
-      console.log('BODY:', req.body);
-      console.log('FILE:', req.file);
-
       return res.status(400).json({ error: 'Todos los campos son requeridos' });
     }
 
     const nuevaMascota = await mascotaService.registrarMascota({ nombre, raza, idDueno, foto, duenio_confirmado });
+
+    await auditar({
+      tabla: 'mascota',
+      operacion: 'INSERT',
+      idRegistro: nuevaMascota.idMascota,
+      datosNuevos: { nombre, raza, idDueno, foto, duenio_confirmado },
+      usuario: `${req.usuario.nombres} ${req.usuario.apellidos}`
+    });
+
     res.status(201).json(nuevaMascota);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -42,18 +49,29 @@ async function obtenerPorId(req, res) {
   }
 }
 
-// Actualizar mascota (solo datos, no imagen en esta versión)
+// Actualizar mascota (datos generales o imagen)
 async function actualizar(req, res) {
   try {
     const id = req.params.id;
     const { nombre, raza, idDueno } = req.body;
-    const nuevaFoto = req.file?.filename; // puede no venir
+    const nuevaFoto = req.file?.filename;
+
+    const mascotaAntes = await mascotaService.obtenerPorId(id);
 
     const mascotaActualizada = await mascotaService.actualizarMascota(id, {
       nombre,
       raza,
       idDueno,
       foto: nuevaFoto
+    });
+
+    await auditar({
+      tabla: 'mascota',
+      operacion: 'UPDATE',
+      idRegistro: id,
+      datosPrevios: mascotaAntes,
+      datosNuevos: { nombre, raza, idDueno, foto: nuevaFoto },
+      usuario: `${req.usuario.nombres} ${req.usuario.apellidos}`
     });
 
     res.status(200).json(mascotaActualizada);
@@ -66,13 +84,23 @@ async function actualizar(req, res) {
 async function verificarDueno(req, res) {
   try {
     const id = req.params.id;
-    const { duenio_confirmado } = req.body; // Extraer duenio_confirmado del cuerpo de la solicitud
+    const { duenio_confirmado } = req.body;
 
     if (duenio_confirmado === undefined) {
       return res.status(400).json({ error: 'El campo duenio_confirmado es requerido' });
     }
 
+    const mascotaAntes = await mascotaService.obtenerPorId(id);
     const mascotaActualizada = await mascotaService.verificarDueno(id, duenio_confirmado);
+
+    await auditar({
+      tabla: 'mascota',
+      operacion: 'UPDATE',
+      idRegistro: id,
+      datosPrevios: mascotaAntes,
+      datosNuevos: { duenio_confirmado },
+      usuario: `${req.usuario.nombres} ${req.usuario.apellidos}`
+    });
 
     res.status(200).json(mascotaActualizada);
   } catch (error) {
@@ -84,7 +112,17 @@ async function verificarDueno(req, res) {
 async function eliminar(req, res) {
   try {
     const id = req.params.id;
+    const mascotaAntes = await mascotaService.obtenerPorId(id);
     const resultado = await mascotaService.eliminarMascota(id);
+
+    await auditar({
+      tabla: 'mascota',
+      operacion: 'DELETE',
+      idRegistro: id,
+      datosPrevios: mascotaAntes,
+      usuario: `${req.usuario.nombres} ${req.usuario.apellidos}`
+    });
+
     res.status(200).json(resultado);
   } catch (error) {
     res.status(404).json({ error: error.message });
@@ -97,5 +135,5 @@ module.exports = {
   obtenerPorId,
   actualizar,
   eliminar,
-  verificarDueno // Exportar el nuevo método
+  verificarDueno
 };

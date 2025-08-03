@@ -7,6 +7,8 @@ const Mascota = require('./mascota');
 const Servicio = require('./servicio');
 const EstadoServicio = require('./estadoServicio');
 const Notificacion = require('./notificacion');
+const Auditoria = require('./auditoria')(sequelize, require('sequelize').DataTypes);
+
 
 // Aplicar asociaciones
 require('./associations');
@@ -20,6 +22,7 @@ const db = {
   Servicio,
   EstadoServicio,
   Notificacion,
+  Auditoria
 
 };
 
