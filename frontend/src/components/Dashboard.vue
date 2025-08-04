@@ -20,6 +20,7 @@
         @close="sidebarOpen = false"
         @selectMenu="selectedMenu = $event"
         :selectedMenu="selectedMenu"
+        :role="role"
       />
 
       <main
@@ -47,10 +48,7 @@
           <Reporte />
         </template>
         <template v-else>
-          <h1 class="text-[var(--color2)] font-bold tracking-wide mb-6 text-center">
-            Bienvenido al Dashboard de Safe Animals
-          </h1>
-          <p class="text-center">Aquí irá el contenido principal del sistema.</p>
+          <DashboardStats />
         </template>
       </main>
     </div>
@@ -72,6 +70,7 @@ import Estados from './Estados.vue';
 import Notificaciones from './Notificaciones.vue';
 import { getCurrentUser, logout } from '../services/auth.js';
 import Reporte from './Reporte.vue';
+import DashboardStats from './DashboardStats.vue';
 
 
 export default {
@@ -85,7 +84,8 @@ export default {
     Citas,
     Estados,
     Notificaciones,
-    Reporte
+    Reporte,
+    DashboardStats
   },
   setup() {
 

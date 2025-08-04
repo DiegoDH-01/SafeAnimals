@@ -10,8 +10,10 @@
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'citas' }" @click="$emit('selectMenu', 'citas')">Agenda / Citas</li>
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'estados' }" @click="$emit('selectMenu', 'estados')">Estados</li>
           <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'notificaciones' }" @click="$emit('selectMenu', 'notificaciones')">Notificaciones</li>
-          <li class="sidebar-item">Historial</li>
-          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'reporte-diario' }" @click="$emit('selectMenu', 'reporte-diario')">Reporte Diario</li>
+          <!-- Solo mostrar Historial para ADMIN -->
+          <li v-if="role === 'ADMIN'" class="sidebar-item">Historial</li>
+          <!-- Solo mostrar Reporte Diario para ADMIN -->
+          <li v-if="role === 'ADMIN'" class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'reporte-diario' }" @click="$emit('selectMenu', 'reporte-diario')">Reporte Diario</li>
         </ul>
       </nav>
       <button v-if="isMobile" class="sidebar-close" @click="$emit('close')">&times;</button>
@@ -36,6 +38,10 @@ export default {
     selectedMenu: {
       type: String,
       default: 'inicio'
+    },
+    role: {
+      type: String,
+      default: ''
     }
   },
   inheritAttrs: false
