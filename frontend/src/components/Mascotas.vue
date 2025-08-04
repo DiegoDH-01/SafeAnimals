@@ -29,7 +29,7 @@
             <td class="px-4 py-4 font-medium">{{ m.nombre }}</td>
             <td class="px-4 py-4">{{ m.raza }}</td>
             <td class="px-4 py-4">
-              <img :src="`http://localhost:3000/uploads/${m.foto}`" alt="Foto" class="w-12 h-12 object-cover rounded" />
+              <img :src="`http://localhost:3000/uploads/${m.foto}`" alt="Foto" :class="mascotaImgClass" />
             </td>
             <td class="px-4 py-4">{{ m.duenoNombre || 'Sin asignar' }}</td>
             <td class="px-4 py-4 text-center">
@@ -146,6 +146,24 @@
   background: #f7f7fa;
   padding: 0.7rem 1rem;
   border-radius: 0.5rem;
+}
+
+/* Ajustar el tamaño de las imágenes de mascotas */
+.mascota-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Ajustar el tamaño de las imágenes en la card de verificación */
+.card-modal img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
 }
 </style>
 
@@ -351,7 +369,8 @@ export default {
       esDuenoVerificado,
       viewCardMascota,
       closeCard,
-      confirmarVerificacion
+      confirmarVerificacion,
+      mascotaImgClass: 'mascota-img',
     };
   }
 };
