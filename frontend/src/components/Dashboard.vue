@@ -41,6 +41,9 @@
         <template v-else-if="selectedMenu === 'estados'">
           <Estados />
         </template>
+        <template v-else-if="selectedMenu === 'historial'">
+          <Historial />
+        </template>
         <template v-else-if="selectedMenu === 'notificaciones'">
           <Notificaciones />
         </template>
@@ -68,6 +71,7 @@ import Mascotas from './Mascotas.vue';
 import Citas from './Citas.vue';
 import Estados from './Estados.vue';
 import Notificaciones from './Notificaciones.vue';
+import Historial from './HistorialServicios.vue';
 import { getCurrentUser, logout } from '../services/auth.js';
 import Reporte from './Reporte.vue';
 import DashboardStats from './DashboardStats.vue';
@@ -85,7 +89,8 @@ export default {
     Estados,
     Notificaciones,
     Reporte,
-    DashboardStats
+    DashboardStats,
+    Historial
   },
   setup() {
 

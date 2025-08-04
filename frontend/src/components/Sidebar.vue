@@ -1,24 +1,86 @@
 <template>
   <transition name="sidebar-slide">
-    <aside v-if="show" class="sidebar" :class="{ 'sidebar-mobile': isMobile, 'sidebar-open': isMobile && show }" v-bind="$attrs">
+    <aside
+      v-if="show"
+      class="sidebar"
+      :class="{ 'sidebar-mobile': isMobile, 'sidebar-open': isMobile && show }"
+      v-bind="$attrs"
+    >
       <nav>
         <ul>
-          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'inicio' }" @click="$emit('selectMenu', 'inicio')">Panel de inicio</li>
-          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'duenos' }" @click="$emit('selectMenu', 'duenos')">Dueños registrados</li>
-          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'mascotas' }" @click="$emit('selectMenu', 'mascotas')">Mascotas registradas</li>
+          <li
+            class="sidebar-item"
+            :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'inicio' }"
+            @click="$emit('selectMenu', 'inicio')"
+          >
+            Panel de inicio
+          </li>
+          <li
+            class="sidebar-item"
+            :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'duenos' }"
+            @click="$emit('selectMenu', 'duenos')"
+          >
+            Dueños registrados
+          </li>
+          <li
+            class="sidebar-item"
+            :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'mascotas' }"
+            @click="$emit('selectMenu', 'mascotas')"
+          >
+            Mascotas registradas
+          </li>
+          <li
+            class="sidebar-item"
+            :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'citas' }"
+            @click="$emit('selectMenu', 'citas')"
+          >
+            Agenda / Citas
+          </li>
+          <li
+            class="sidebar-item"
+            :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'estados' }"
+            @click="$emit('selectMenu', 'estados')"
+          >
+            Estados
+          </li>
+          <li
+            class="sidebar-item"
+            :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'notificaciones' }"
+            @click="$emit('selectMenu', 'notificaciones')"
+          >
+            Notificaciones
+          </li>
 
-          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'citas' }" @click="$emit('selectMenu', 'citas')">Agenda / Citas</li>
-          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'estados' }" @click="$emit('selectMenu', 'estados')">Estados</li>
-          <li class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'notificaciones' }" @click="$emit('selectMenu', 'notificaciones')">Notificaciones</li>
-          <!-- Solo mostrar Historial para ADMIN -->
-          <li v-if="role === 'ADMIN'" class="sidebar-item">Historial</li>
-          <!-- Solo mostrar Reporte Diario para ADMIN -->
-          <li v-if="role === 'ADMIN'" class="sidebar-item" :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'reporte-diario' }" @click="$emit('selectMenu', 'reporte-diario')">Reporte Diario</li>
+          <!-- ADMIN: Historial y Reporte Diario -->
+          <li
+            v-if="role === 'ADMIN'"
+            class="sidebar-item"
+            :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'historial' }"
+            @click="$emit('selectMenu', 'historial')"
+          >
+            Historial de Servicios
+          </li>
+          <li
+            v-if="role === 'ADMIN'"
+            class="sidebar-item"
+            :class="{ 'bg-[var(--color2)] text-white': selectedMenu === 'reporte-diario' }"
+            @click="$emit('selectMenu', 'reporte-diario')"
+          >
+            Reporte Diario
+          </li>
         </ul>
       </nav>
-      <button v-if="isMobile" class="sidebar-close" @click="$emit('close')">&times;</button>
+
+      <button
+        v-if="isMobile"
+        class="sidebar-close"
+        @click="$emit('close')"
+      >
+        &times;
+      </button>
     </aside>
   </transition>
+
   <div v-if="isMobile && show" class="sidebar-backdrop" @click="$emit('close')"></div>
 </template>
 
@@ -55,7 +117,7 @@ export default {
   background: var(--color1);
   color: #fff;
   padding: 2rem 1rem 1rem 1rem;
-  box-shadow: 2px 0 8px 0 rgba(89,38,63,0.08);
+  box-shadow: 2px 0 8px 0 rgba(89, 38, 63, 0.08);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -71,7 +133,7 @@ export default {
   width: 220px;
   transform: translateX(-100%);
   transition: transform 0.3s;
-  box-shadow: 2px 0 16px 0 rgba(0,0,0,0.18);
+  box-shadow: 2px 0 16px 0 rgba(0, 0, 0, 0.18);
 }
 .sidebar-open.sidebar-mobile {
   transform: translateX(0);
@@ -82,7 +144,7 @@ export default {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.25);
+  background: rgba(0, 0, 0, 0.25);
   z-index: 1200;
 }
 .sidebar-close {
@@ -122,10 +184,12 @@ export default {
   background: var(--color2);
   color: #fff;
 }
-.sidebar-slide-enter-active, .sidebar-slide-leave-active {
+.sidebar-slide-enter-active,
+.sidebar-slide-leave-active {
   transition: opacity 0.3s;
 }
-.sidebar-slide-enter-from, .sidebar-slide-leave-to {
+.sidebar-slide-enter-from,
+.sidebar-slide-leave-to {
   opacity: 0;
 }
 </style>

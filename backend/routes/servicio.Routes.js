@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const servicioController = require('../controllers/servicio.Controller');
 
+
+router.get('/historial', servicioController.obtenerTodosLosServicios);
+
 // Crear un nuevo servicio (agendar cita)
 router.post('/', servicioController.registrar);
 
@@ -9,6 +12,8 @@ router.post('/', servicioController.registrar);
 router.get('/', servicioController.listarTodos);
 // Listar servicios que ya fueron entregados
 router.get('/entregados', servicioController.listarEntregados);
+
+
 
 
 // Obtener un servicio por ID

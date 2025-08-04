@@ -2,21 +2,25 @@ const express = require('express');
 const router = express.Router();
 
 const mascotaController = require('../controllers/mascota.Controller');
-const upload = require('../middleware/upload'); // <-- NUEVO
+const upload = require('../middleware/upload');
+const auth = require('../middleware/auth'); // ✅ Importar middleware
 
-// Crear nueva mascota con foto (usando multipart/form-data)
-router.post('/registro', upload.single('foto'), mascotaController.registrar);
+// Crear nueva mascota (requiere autenticación)
+router.post('/registro', auth, upload.single('foto'), mascotaController.registrar);
 
-// Obtener todas las mascotas activas (incluye datos del dueño)
+// Obtener todas las mascotas activas (pública o protegida según lo necesites)
 router.get('/', mascotaController.obtenerTodos);
 
-// Obtener una mascota por ID (solo si está activa)
+// Obtener una mascota por ID
 router.get('/:id', mascotaController.obtenerPorId);
 
-// Actualizar datos de una mascota
-router.put('/:id', upload.single('foto'), mascotaController.actualizar);
+// Actualizar datos de una mascota (requiere autenticación)
+router.put('/:id', auth, upload.single('foto'), mascotaController.actualizar);
 
-// Eliminación lógica de una mascota
-router.delete('/:id', mascotaController.eliminar);
+// Verificar dueño (requiere autenticación)
+router.put('/:id/verificar', auth, mascotaController.verificarDueno);
+
+// Eliminación lógica de una mascota (requiere autenticación)
+router.delete('/:id', auth, mascotaController.eliminar);
 
 module.exports = router;
