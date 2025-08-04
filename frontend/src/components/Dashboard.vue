@@ -120,6 +120,7 @@ export default {
           window.location.href = '/';
         }
       } catch (err) {
+        console.log(`Exception while doing something: ${err}`);
         window.location.href = '/';
       }
     };
