@@ -68,9 +68,9 @@ const fetchHistorial = async () => {
 
 const formatDate = (fecha) => {
   if (!fecha) return '—';
-  const d = new Date(fecha);
-  return d.toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric' });
+  return fecha; // "2025-08-05"
 };
+
 
 const estadoColorClass = (estado) => {
   if (!estado) return '';
