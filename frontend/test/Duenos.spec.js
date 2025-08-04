@@ -174,3 +174,4 @@ describe('Duenos.vue', () => {
     expect(wrapper.find('.modal-error').text()).toContain('Error al guardar dueño');
   });
 });
+
