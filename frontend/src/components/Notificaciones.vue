@@ -4,29 +4,31 @@
             <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Notificaciones</h2>
         </div>
 
-        <!-- Buscador estilizado y centrado -->
-        <div class="buscador-container">
-            <div class="buscador-wrapper">
-                <svg class="buscador-icon" viewBox="0 0 24 24" fill="none">
-                    <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
-                    <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                </svg>
-                <input v-model="busqueda" type="text" placeholder="Buscar por nombre, referencia o dueño..."
-                    class="buscador-input" />
+        <!-- Buscador sticky y separado -->
+        <div class="sticky-buscador">
+            <div class="buscador-container">
+                <div class="buscador-wrapper">
+                    <svg class="buscador-icon" viewBox="0 0 24 24" fill="none">
+                        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+                        <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <input v-model="busqueda" type="text" placeholder="Buscar por nombre, referencia o dueño..."
+                        class="buscador-input" />
+                </div>
             </div>
         </div>
 
+        <!-- Mensaje si no hay notificaciones -->
+        <div v-if="notificacionesFiltradas.length === 0" class="text-center text-gray-500">
+            No hay notificaciones.
+        </div>
 
-
-        <div v-if="notificacionesFiltradas.length === 0" class="text-center text-gray-500">No hay notificaciones.</div>
-
+        <!-- Tarjetas scrollables -->
         <div ref="scrollContainer" class="noti-scroll-container" @mousedown="startDrag" @mousemove="onDrag"
             @mouseup="stopDrag" @mouseleave="stopDrag">
             <div class="noti-cards-wrapper">
                 <div v-for="n in notificacionesFiltradas" :key="n.idNotificacion" class="noti-card">
                     <div class="flex items-center gap-4 mb-2 pb-2 border-b border-[var(--color2)/10]">
-                        <img v-if="n.servicio?.mascota?.foto" :src="n.servicio.mascota.foto" alt="Mascota"
-                            class="noti-img" />
                         <div>
                             <div class="font-bold text-xl leading-tight">{{ n.servicio?.mascota?.nombre || 'Mascota' }}
                             </div>
@@ -52,7 +54,7 @@
                     <div class="flex flex-wrap items-center gap-2 text-xs text-gray-600">
                         <span class="font-semibold text-gray-400">Dueño:</span>
                         <span>{{ n.servicio?.mascota?.dueno?.nombres }} {{ n.servicio?.mascota?.dueno?.apellidos
-                        }}</span>
+                            }}</span>
                     </div>
                 </div>
             </div>
@@ -61,6 +63,7 @@
         <p v-if="error" class="modal-error mt-4">{{ error }}</p>
     </div>
 </template>
+
 
 <script>
 import { ref, computed, onMounted } from 'vue';
@@ -142,6 +145,9 @@ export default {
 <style scoped>
 .notificaciones-bg {
     background: #f8f9fb;
+    max-width: 100vw;
+    /* ✅ evita que el contenedor se agrande con el scroll horizontal */
+    overflow-x: hidden;
 }
 
 /* Input */
@@ -189,17 +195,6 @@ input:focus {
     transform: scale(1.035);
     box-shadow: 0 10px 30px rgba(139, 58, 94, 0.2);
     border-color: #a44574;
-}
-
-/* Imagen */
-.noti-img {
-    width: 80px;
-    height: 80px;
-    border-radius: 16px;
-    object-fit: cover;
-    border: 2.5px solid #8b3a5e;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(139, 58, 94, 0.1);
 }
 
 /* Mensaje */
@@ -259,5 +254,21 @@ input:focus {
     outline: none;
     border-color: #8b3a5e;
     box-shadow: 0 4px 12px rgba(139, 58, 94, 0.15);
+}
+
+/* Buscador sticky separado */
+.sticky-buscador {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: #f8f9fb;
+    padding-top: 0.5rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    /* ✅ clave para evitar desplazamientos */
+    max-width: 100%;
+    overflow: hidden;
 }
 </style>

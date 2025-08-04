@@ -46,6 +46,9 @@
         <template v-else-if="selectedMenu === 'notificaciones'">
           <Notificaciones />
         </template>
+        <template v-else-if="selectedMenu === 'reporte-diario'">
+          <Reporte />
+        </template>
         <template v-else>
           <h1 class="text-[var(--color2)] font-bold tracking-wide mb-6 text-center">
             Bienvenido al Dashboard de Safe Animals
@@ -72,6 +75,7 @@ import Estados from './Estados.vue';
 import Notificaciones from './Notificaciones.vue';
 import Historial from './HistorialServicios.vue';
 import { getCurrentUser, logout } from '../services/auth.js';
+import Reporte from './Reporte.vue';
 
 
 export default {
@@ -85,7 +89,11 @@ export default {
     Citas,
     Estados,
     Notificaciones,
+
+    Reporte
+
     Historial
+
   },
   setup() {
 

@@ -85,8 +85,80 @@
             nombreEstado: { [Op.ne]: 'Entregado' } // Excluir entregado
           }
         }
-      ],
-      order: [['created_at', 'DESC']]
+
+      }
+    ],
+    order: [['created_at', 'DESC']]
+  });
+}
+
+/**
+ * Obtener todos los servicios ENTREGADOS (con mascota, estado y usuario)
+ */
+async function obtenerEntregados() {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const mañana = new Date(hoy);
+  mañana.setDate(hoy.getDate() + 1);
+
+  return await Servicio.findAll({
+    where: {
+      activo: true,
+      fechaFinalizacion: {
+        [Op.gte]: hoy,
+        [Op.lt]: mañana
+      }
+    },
+    include: [
+      {
+        model: Mascota,
+        as: 'mascota',
+        include: [{ model: require('../models').Dueno, as: 'dueno' }]
+      },
+      {
+        model: Usuario,
+        as: 'usuario',
+        attributes: ['idUsuario', 'nombres', 'apellidos', 'email', 'rol']
+      },
+      {
+        model: EstadoServicio,
+        as: 'estado',
+        attributes: ['idEstado', 'nombreEstado'],
+        where: {
+          nombreEstado: { [Op.eq]: 'Entregado' }
+        }
+      }
+    ],
+    order: [['fechaFinalizacion', 'DESC']]
+  });
+}
+
+
+/**
+ * Obtener un servicio activo por ID
+ */
+async function obtenerPorId(idServicio) {
+    const servicio = await Servicio.findOne({
+        where: { idServicio, activo: true },
+        include: [
+            {
+                model: Mascota,
+                as: 'mascota',
+                include: [{ model: Dueno, as: 'dueno' }]
+            },
+            {
+                model: Usuario,
+                as: 'usuario',
+                attributes: ['idUsuario', 'nombres', 'apellidos', 'email']
+            },
+            {
+                model: EstadoServicio,
+                as: 'estado',
+                attributes: ['idEstado', 'nombreEstado']
+            }
+        ]
+
     });
   }
 
@@ -266,14 +338,26 @@
 
 
 
-  module.exports = {
-      registrarServicio,
-      obtenerTodos,
-      obtenerPorId,
-      actualizarEstado,
-      eliminarServicio,
-      actualizarDatosServicio,
-      avanzarEstado,
-      retrocederEstado,
-      obtenerHistorialServicios
-  };
+/**
+ * Eliminar servicio (borrado lógico)
+ */
+async function eliminarServicio(idServicio) {
+    const servicio = await Servicio.findOne({ where: { idServicio, activo: true } });
+    if (!servicio) throw new Error('Servicio no encontrado o ya inactivo');
+
+    await servicio.update({ activo: false });
+    return { mensaje: 'Servicio eliminado correctamente' };
+}
+
+module.exports = {
+    registrarServicio,
+    obtenerTodos,
+    obtenerEntregados,
+    obtenerPorId,
+    actualizarEstado,
+    eliminarServicio,
+    actualizarDatosServicio,
+    avanzarEstado,
+    retrocederEstado
+};
+
