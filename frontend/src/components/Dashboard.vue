@@ -89,9 +89,7 @@ export default {
     Citas,
     Estados,
     Notificaciones,
-
-    Reporte
-
+    Reporte,
     Historial
 
   },
