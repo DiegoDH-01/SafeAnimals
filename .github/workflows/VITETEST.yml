@@ -19,6 +19,11 @@ jobs:
         with:
           node-version: 18
 
+      - name: 🧹 Limpiar dependencias antiguas
+        run: |
+          rm -rf frontend/node_modules frontend/package-lock.json
+      
+
       - name: 📦 Instalar dependencias
         run: npm install
         working-directory: frontend
