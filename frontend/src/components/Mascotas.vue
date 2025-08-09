@@ -1,5 +1,15 @@
 <template>
   <div class="duenos-bg flex flex-col gap-8 px-6 pt-10 pb-8 sm:px-20 sm:pt-16 sm:pb-12 min-h-screen">
+    <!-- Success Notification -->
+    <transition name="fade">
+      <div v-if="showNotification" class="notification notification--success">
+        <span>{{ notificationMessage }}</span>
+        <button @click="hideNotification" class="notification-close">
+          <img src="../assets/close.svg" alt="Cerrar" width="16" height="16" />
+        </button>
+      </div>
+    </transition>
+
     <div class="flex justify-between items-center mb-8">
       <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Mascotas registradas</h2>
       <button @click="openModal" class="btn text-xs flex items-center gap-1 w-full sm:w-auto py-3 sm:py-2">
@@ -73,12 +83,31 @@
             <input v-model="mascota.nombre" type="text" placeholder="Nombre *" class="modal-input" required />
             <input v-model="mascota.raza" type="text" placeholder="Raza *" class="modal-input" required />
             <input type="file" accept="image/*" @change="handleFileChange" class="modal-input" :required="!editando" />
-            <select v-model="mascota.idDueno" class="modal-input" required>
-              <option disabled value="">Seleccionar dueño</option>
-              <option v-for="d in duenos" :key="d.idDueno" :value="d.idDueno">
-                {{ d.nombres }} {{ d.apellidos }}
-              </option>
-            </select>
+            
+            <!-- Autocomplete para dueño -->
+            <div class="relative">
+              <input 
+                v-model="duenoSearch" 
+                type="text" 
+                placeholder="Buscar dueño *" 
+                class="modal-input" 
+                required
+                @input="filterDuenos"
+                @focus="showDuenosDropdown = true"
+                @blur="handleDuenoBlur"
+              />
+              <div v-if="showDuenosDropdown && filteredDuenos.length > 0" class="duenos-dropdown">
+                <div 
+                  v-for="dueno in filteredDuenos" 
+                  :key="dueno.idDueno"
+                  @click="selectDueno(dueno)"
+                  class="dueno-option"
+                >
+                  {{ dueno.nombres }} {{ dueno.apellidos }}
+                </div>
+              </div>
+            </div>
+
             <div class="modal-actions">
               <button type="button" @click="closeModal" class="modal-btn modal-btn--cancel">Cancelar</button>
               <button type="submit" class="modal-btn">{{ editando ? 'Guardar cambios' : 'Registrar mascota' }}</button>
@@ -179,6 +208,81 @@
   display: block;
   margin: 0 auto;
 }
+
+/* Autocomplete dropdown styles */
+.duenos-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.dueno-option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s;
+}
+
+.dueno-option:hover {
+  background-color: #f9fafb;
+}
+
+.dueno-option:last-child {
+  border-bottom: none;
+}
+
+/* Notification Styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 500;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification--success {
+  background-color: #10b981;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-close:hover {
+  opacity: 0.8;
+}
+
+/* Fade transition for notifications */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
 </style>
 
 <script>
@@ -200,6 +304,15 @@ export default {
     const pageSize = ref(10);
     const selectedFile = ref(null);
 
+    // Autocomplete variables
+    const duenoSearch = ref('');
+    const showDuenosDropdown = ref(false);
+    const filteredDuenos = ref([]);
+
+    // Notifications
+    const showNotification = ref(false);
+    const notificationMessage = ref('');
+
     const showCard = ref(false);
     const mascotaCard = ref({ 
       idMascota: '', 
@@ -211,6 +324,46 @@ export default {
       citas: []
     });
     const esDuenoVerificado = ref(false);
+
+    const showSuccessNotification = (message) => {
+      notificationMessage.value = message;
+      showNotification.value = true;
+      setTimeout(() => {
+        hideNotification();
+      }, 3000);
+    };
+
+    const hideNotification = () => {
+      showNotification.value = false;
+    };
+
+    // Función para filtrar dueños en el autocomplete
+    const filterDuenos = () => {
+      if (!duenoSearch.value.trim()) {
+        filteredDuenos.value = [];
+        return;
+      }
+      
+      const searchTerm = duenoSearch.value.toLowerCase();
+      filteredDuenos.value = duenos.value.filter(dueno => 
+        dueno.nombres.toLowerCase().includes(searchTerm) ||
+        dueno.apellidos.toLowerCase().includes(searchTerm)
+      );
+    };
+
+    // Función para seleccionar un dueño del dropdown
+    const selectDueno = (dueno) => {
+      mascota.value.idDueno = dueno.idDueno;
+      duenoSearch.value = `${dueno.nombres} ${dueno.apellidos}`;
+      showDuenosDropdown.value = false;
+    };
+
+    // Función para manejar el blur del input de dueño
+    const handleDuenoBlur = () => {
+      setTimeout(() => {
+        showDuenosDropdown.value = false;
+      }, 200);
+    };
 
     // Función para obtener las citas de una mascota específica
     const obtenerCitasMascota = async (idMascota) => {
@@ -313,6 +466,8 @@ export default {
       showModal.value = true;
       error.value = '';
       selectedFile.value = null;
+      duenoSearch.value = '';
+      filteredDuenos.value = [];
     };
 
     const closeModal = () => {
@@ -321,6 +476,8 @@ export default {
       mascota.value = { nombre: '', raza: '', foto: '', idDueno: '' };
       error.value = '';
       selectedFile.value = null;
+      duenoSearch.value = '';
+      filteredDuenos.value = [];
     };
 
     const handleSubmit = async () => {
@@ -345,6 +502,7 @@ export default {
               'Content-Type': 'multipart/form-data'
             }
           });
+          showSuccessNotification('Mascota editada correctamente');
         } else {
           await axios.post('http://localhost:3000/api/mascotas/registro', formData, {
             headers: {
@@ -352,6 +510,7 @@ export default {
               'Content-Type': 'multipart/form-data'
             }
           });
+          showSuccessNotification('Mascota registrada correctamente');
         }
         closeModal();
         await fetchMascotas();
@@ -369,6 +528,13 @@ export default {
         foto: m.foto,
         idDueno: m.idDueno
       };
+      
+      // Buscar el nombre del dueño para mostrarlo en el input
+      const dueno = duenos.value.find(d => d.idDueno === m.idDueno);
+      if (dueno) {
+        duenoSearch.value = `${dueno.nombres} ${dueno.apellidos}`;
+      }
+      
       showModal.value = true;
     };
 
@@ -380,6 +546,7 @@ export default {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         await fetchMascotas();
+        showSuccessNotification('Mascota eliminada correctamente');
       } catch (e) {
         alert(e.response?.data?.error || 'Error al eliminar mascota');
       }
@@ -438,6 +605,17 @@ export default {
       closeCard,
       confirmarVerificacion,
       mascotaImgClass: 'mascota-img',
+      // Autocomplete variables
+      duenoSearch,
+      showDuenosDropdown,
+      filteredDuenos,
+      filterDuenos,
+      selectDueno,
+      handleDuenoBlur,
+      // Notifications
+      showNotification,
+      notificationMessage,
+      hideNotification
     };
   }
 };

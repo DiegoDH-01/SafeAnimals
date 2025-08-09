@@ -1,5 +1,15 @@
 <template>
   <div class="duenos-bg flex flex-col gap-8 px-6 pt-10 pb-8 sm:px-20 sm:pt-16 sm:pb-12 min-h-screen">
+    <!-- Success Notification -->
+    <transition name="fade">
+      <div v-if="showNotification" class="notification notification--success">
+        <span>{{ notificationMessage }}</span>
+        <button @click="hideNotification" class="notification-close">
+          <img src="../assets/close.svg" alt="Cerrar" width="16" height="16" />
+        </button>
+      </div>
+    </transition>
+
     <div class="flex justify-between items-center mb-8">
       <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Citas agendadas</h2>
       <button @click="openModal" class="btn text-xs flex items-center gap-1 w-full sm:w-auto py-3 sm:py-2">
@@ -24,7 +34,7 @@
             <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Fecha</th>
             <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Referencia</th>
             <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Mascota</th>
-            <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Usuario</th>
+            <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Encargado</th>
             <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Estado</th>
             <th class="px-4 sm:px-6 py-3 text-center font-semibold whitespace-nowrap">Acciones</th>
           </tr>
@@ -68,12 +78,32 @@
               <input v-model="form.fechaRegistro" type="date" placeholder="Fecha *" class="modal-input" required />
               <input v-model="form.referencia" type="text" placeholder="Referencia *" class="modal-input" required />
             </div>
-            <select v-model="form.idMascota" class="modal-input" required>
-              <option value="" disabled>Selecciona una mascota</option>
-              <option v-for="m in mascotas" :key="m.id" :value="m.id">
-                {{ m.nombre }} - {{ m.dueno ? `${m.dueno.nombres} ${m.dueno.apellidos}` : 'Sin dueño' }}
-              </option>
-            </select>
+            
+            <!-- Autocomplete para mascota -->
+            <div class="relative">
+              <input 
+                v-model="mascotaSearch" 
+                type="text" 
+                placeholder="Buscar mascota *" 
+                class="modal-input" 
+                required
+                @input="filterMascotas"
+                @focus="showMascotasDropdown = true"
+                @blur="handleMascotaBlur"
+              />
+              <div v-if="showMascotasDropdown && filteredMascotas.length > 0" class="mascotas-dropdown">
+                <div 
+                  v-for="mascota in filteredMascotas" 
+                  :key="mascota.id"
+                  @click="selectMascota(mascota)"
+                  class="mascota-option"
+                >
+                  <span class="mascota-nombre">{{ mascota.nombre }}</span>
+                  <span class="mascota-dueno">- {{ mascota.dueno ? `${mascota.dueno.nombres} ${mascota.dueno.apellidos}` : 'Sin dueño' }}</span>
+                </div>
+              </div>
+            </div>
+
             <input
               class="modal-input"
               type="text"
@@ -81,7 +111,7 @@
               readonly
               tabindex="-1"
             />
-            <div v-if="!editando" class="text-xs text-gray-500 mb-2">El usuario guardado será el actual de la sesión</div>
+            <div v-if="!editando" class="text-xs text-gray-500 mb-2">El Recepcionista guardado será el actual de la sesión</div>
             <select v-model="form.idEstadoActual" class="modal-input" required :disabled="!editando">
               <option v-for="e in estados" :key="e.id" :value="e.id" :selected="form.idEstadoActual === e.id">
                 {{ e.nombre }}
@@ -127,6 +157,58 @@ export default {
     const currentPage = ref(1);
     const pageSize = ref(10);
 
+    // Autocomplete variables
+    const mascotaSearch = ref('');
+    const showMascotasDropdown = ref(false);
+    const filteredMascotas = ref([]);
+
+    // Notifications
+    const showNotification = ref(false);
+    const notificationMessage = ref('');
+
+    const showSuccessNotification = (message) => {
+      notificationMessage.value = message;
+      showNotification.value = true;
+      setTimeout(() => {
+        hideNotification();
+      }, 3000);
+    };
+
+    const hideNotification = () => {
+      showNotification.value = false;
+    };
+
+    // Función para filtrar mascotas en el autocomplete
+    const filterMascotas = () => {
+      if (!mascotaSearch.value.trim()) {
+        filteredMascotas.value = [];
+        return;
+      }
+      
+      const searchTerm = mascotaSearch.value.toLowerCase();
+      filteredMascotas.value = mascotas.value.filter(mascota => 
+        mascota.nombre.toLowerCase().includes(searchTerm) ||
+        (mascota.dueno && (
+          mascota.dueno.nombres.toLowerCase().includes(searchTerm) ||
+          mascota.dueno.apellidos.toLowerCase().includes(searchTerm)
+        ))
+      );
+    };
+
+    // Función para seleccionar una mascota del dropdown
+    const selectMascota = (mascota) => {
+      form.value.idMascota = mascota.id;
+      mascotaSearch.value = `${mascota.nombre} - ${mascota.dueno ? `${mascota.dueno.nombres} ${mascota.dueno.apellidos}` : 'Sin dueño'}`;
+      showMascotasDropdown.value = false;
+    };
+
+    // Función para manejar el blur del input de mascota
+    const handleMascotaBlur = () => {
+      setTimeout(() => {
+        showMascotasDropdown.value = false;
+      }, 200);
+    };
+
     const fetchCitas = async () => {
       citas.value = await getCitas();
     };
@@ -156,6 +238,8 @@ export default {
       idEditando.value = null;
       const user = currentUser.value;
       form.value = { fechaRegistro: '', referencia: '', idMascota: '', idUsuario: user && user.id ? Number(user.id) : null, idEstadoActual: 1 };
+      mascotaSearch.value = '';
+      filteredMascotas.value = [];
     };
     const closeModal = () => {
       showModal.value = false;
@@ -163,6 +247,8 @@ export default {
       idEditando.value = null;
       form.value = { fechaRegistro: '', referencia: '', idMascota: '', idUsuario: '', idEstadoActual: '' };
       error.value = '';
+      mascotaSearch.value = '';
+      filteredMascotas.value = [];
     };
 
     const handleSubmit = async () => {
@@ -177,8 +263,10 @@ export default {
         }
         if (editando.value) {
           await axios.put(`http://localhost:3000/api/servicios/${idEditando.value}`, form.value);
+          showSuccessNotification('Cita editada correctamente');
         } else {
           await axios.post('http://localhost:3000/api/servicios', form.value);
+          showSuccessNotification('Cita registrada correctamente');
         }
         closeModal();
         await fetchCitas();
@@ -202,6 +290,13 @@ export default {
         idUsuario: cita.idUsuario,
         idEstadoActual: cita.idEstadoActual
       };
+      
+      // Buscar la mascota para mostrarla en el input
+      const mascota = mascotas.value.find(m => m.id === cita.idMascota);
+      if (mascota) {
+        mascotaSearch.value = `${mascota.nombre} - ${mascota.dueno ? `${mascota.dueno.nombres} ${mascota.dueno.apellidos}` : 'Sin dueño'}`;
+      }
+      
       showModal.value = true;
     };
 
@@ -210,6 +305,7 @@ export default {
       try {
         await axios.delete(`http://localhost:3000/api/servicios/${cita.idServicio}`);
         await fetchCitas();
+        showSuccessNotification('Cita eliminada correctamente');
       } catch (e) {
         alert(e.response?.data?.message || 'Error al eliminar cita');
       }
@@ -281,7 +377,18 @@ export default {
       deleteCita,
       mascotas,
       usuarios,
-      estados
+      estados,
+      // Autocomplete variables
+      mascotaSearch,
+      showMascotasDropdown,
+      filteredMascotas,
+      filterMascotas,
+      selectMascota,
+      handleMascotaBlur,
+      // Notifications
+      showNotification,
+      notificationMessage,
+      hideNotification
     };
   }
 };
@@ -299,5 +406,93 @@ export default {
   background: #fff;
   outline: none;
   transition: border 0.2s;
+}
+
+/* Autocomplete dropdown styles */
+.mascotas-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.mascota-option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mascota-option:hover {
+  background-color: #f9fafb;
+}
+
+.mascota-option:last-child {
+  border-bottom: none;
+}
+
+.mascota-nombre {
+  font-weight: 500;
+  color: var(--color2);
+}
+
+.mascota-dueno {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Notification Styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 500;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification--success {
+  background-color: #10b981;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-close:hover {
+  opacity: 0.8;
+}
+
+/* Fade transition for notifications */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>

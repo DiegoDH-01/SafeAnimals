@@ -1,5 +1,15 @@
 <template>
     <div class="duenos-bg flex flex-col gap-8 px-6 pt-10 pb-8 sm:px-20 sm:pt-16 sm:pb-12 min-h-screen">
+        <!-- Success Notification -->
+        <transition name="fade">
+            <div v-if="showNotification" class="notification notification--success">
+                <span>{{ notificationMessage }}</span>
+                <button @click="hideNotification" class="notification-close">
+                    <img src="../assets/close.svg" alt="Cerrar" width="16" height="16" />
+                </button>
+            </div>
+        </transition>
+
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Reporte Diario de Entregas</h2>
         </div>
@@ -27,13 +37,8 @@
                         <td class="px-4 sm:px-6 py-4 text-center whitespace-nowrap">
                             <button @click="() => generarReporte(cita)" class="text-blue-600 hover:text-blue-800"
                                 title="Generar Reporte">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 inline-block" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4m0 4h.01M5 13l4 4L19 7" />
-                                </svg>
+                                <img src="../assets/logo.png" alt="Generar Reporte" class="w-6 h-6 inline-block" width="28" height="28" />
                             </button>
-
                         </td>
                     </tr>
                     <tr v-if="paginatedCitas.length === 0">
@@ -67,6 +72,22 @@ export default {
         const currentPage = ref(1);
         const pageSize = ref(10);
 
+        // Notifications
+        const showNotification = ref(false);
+        const notificationMessage = ref('');
+
+        const showSuccessNotification = (message) => {
+            notificationMessage.value = message;
+            showNotification.value = true;
+            setTimeout(() => {
+                hideNotification();
+            }, 3000);
+        };
+
+        const hideNotification = () => {
+            showNotification.value = false;
+        };
+
         const fetchCitas = async () => {
             citas.value = await getCitasEntregadasHoy();
         };
@@ -89,15 +110,19 @@ export default {
         };
 
         const generarReporte = async (cita) => {
-            alert(`Generando PDF para servicio #${cita.idServicio}`);
-            const servicio = await getReporteServicioEntregado(cita.idServicio);
-            if (servicio) {
-                generarReportePDF(servicio);
-            } else {
-                alert('No se pudo generar el reporte.');
+            try {
+                const servicio = await getReporteServicioEntregado(cita.idServicio);
+                if (servicio) {
+                    generarReportePDF(servicio);
+                    showSuccessNotification('Reporte ha sido generado');
+                } else {
+                    alert('No se pudo generar el reporte.');
+                }
+            } catch (error) {
+                console.error('Error al generar reporte:', error);
+                alert('Error al generar el reporte.');
             }
         };
-
 
         onMounted(fetchCitas);
 
@@ -108,10 +133,60 @@ export default {
             totalPages,
             nextPage,
             prevPage,
-            generarReporte
+            generarReporte,
+            // Notifications
+            showNotification,
+            notificationMessage,
+            hideNotification
         };
     }
 };
 </script>
 
 <style src="../styles/table.css"></style>
+<style scoped>
+/* Notification Styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification--success {
+    background-color: #10b981;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-close:hover {
+    opacity: 0.8;
+}
+
+/* Fade transition for notifications */
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
+}
+</style>

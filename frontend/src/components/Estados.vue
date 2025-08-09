@@ -10,7 +10,7 @@
             <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Fecha</th>
             <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Referencia</th>
             <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Mascota</th>
-            <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Usuario</th>
+            <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Encargado</th>
             <th class="px-4 sm:px-6 py-3 font-semibold whitespace-nowrap">Estado</th>
             <th class="px-4 sm:px-6 py-3 text-center font-semibold whitespace-nowrap">Acciones</th>
           </tr>
@@ -97,6 +97,23 @@ export default {
         // Mostrar mensaje solo si se avanzó desde 'Finalizado' a 'Entregado'
         if (nombreEstado === 'finalizado' || estado.idEstado === 3) {
           alert('La mascota fue entregada con éxito.');
+        }
+        
+        // Verificar si el nuevo estado es "Finalizado" o "Recibido" para mostrar notificación
+        const nuevoEstado = await axios.get(`http://localhost:3000/api/servicios/${servicio.idServicio}`);
+        const estadoActual = nuevoEstado.data.estado?.nombreEstado?.toLowerCase();
+        
+        if (estadoActual === 'finalizado' || estadoActual === 'entregado') {
+          // Guardar notificación en localStorage para mostrarla globalmente
+          const notificacion = {
+            mensaje: 'Notificación ha sido enviada',
+            tipo: 'success',
+            timestamp: Date.now()
+          };
+          localStorage.setItem('notificacionGlobal', JSON.stringify(notificacion));
+          
+          // Disparar evento personalizado para que otros componentes se enteren
+          window.dispatchEvent(new CustomEvent('notificacionGlobal', { detail: notificacion }));
         }
         
         await fetchServicios();

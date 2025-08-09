@@ -1,5 +1,15 @@
 <template>
   <div class="duenos-bg flex flex-col gap-8 px-6 pt-10 pb-8 sm:px-20 sm:pt-16 sm:pb-12 min-h-screen">
+    <!-- Success Notification -->
+    <transition name="fade">
+      <div v-if="showNotification" class="notification notification--success">
+        <span>{{ notificationMessage }}</span>
+        <button @click="hideNotification" class="notification-close">
+          <img src="../assets/close.svg" alt="Cerrar" width="16" height="16" />
+        </button>
+      </div>
+    </transition>
+
     <div class="flex justify-between items-center mb-8">
       <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Dueños registrados</h2>
       <button @click="openModal" class="btn text-xs flex items-center gap-1 w-full sm:w-auto py-3 sm:py-2">
@@ -63,8 +73,8 @@
               <input v-model="nuevo.nombres" type="text" placeholder="Nombres *" class="modal-input" required />
               <input v-model="nuevo.apellidos" type="text" placeholder="Apellidos *" class="modal-input" required />
             </div>
-            <input v-model="nuevo.celular" type="text" placeholder="Celular" class="modal-input" />
-            <input v-model="nuevo.email" type="email" placeholder="Email" class="modal-input" />
+            <input v-model="nuevo.celular" type="tel" placeholder="Celular *" class="modal-input" required />
+            <input v-model="nuevo.email" type="email" placeholder="Email *" class="modal-input" required />
             <div class="modal-actions">
               <button type="button" @click="closeModal" class="modal-btn modal-btn--cancel">Cancelar</button>
               <button type="submit" class="modal-btn">{{ editando ? 'Guardar cambios' : 'Registrar dueño' }}</button>
@@ -127,6 +137,51 @@
   padding: 0.7rem 1rem;
   border-radius: 0.5rem;
 }
+
+/* Notification Styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 500;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification--success {
+  background-color: #10b981;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-close:hover {
+  opacity: 0.8;
+}
+
+/* Fade transition for notifications */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
 </style>
 
 
@@ -151,9 +206,24 @@ export default {
     // Paginación
     const currentPage = ref(1);
     const pageSize = ref(10);
+    // Notifications
+    const showNotification = ref(false);
+    const notificationMessage = ref('');
 
     const fetchDuenos = async () => {
       duenos.value = await getDuenos();
+    };
+
+    const showSuccessNotification = (message) => {
+      notificationMessage.value = message;
+      showNotification.value = true;
+      setTimeout(() => {
+        hideNotification();
+      }, 3000);
+    };
+
+    const hideNotification = () => {
+      showNotification.value = false;
     };
 
     const openModal = () => {
@@ -180,14 +250,32 @@ export default {
     const handleSubmit = async () => {
       error.value = '';
 
-      // Validación manual de campos requeridos
+      // Validación de campos requeridos
       if (!nuevo.value.nombres.trim() || !nuevo.value.apellidos.trim()) {
         error.value = 'Los campos nombres y apellidos son requeridos.';
         return;
       }
 
-      if (nuevo.value.celular && !/^\d{10}$/.test(nuevo.value.celular)) {
+      // Validación de celular (requerido y formato)
+      if (!nuevo.value.celular.trim()) {
+        error.value = 'El campo celular es requerido.';
+        return;
+      }
+
+      if (!/^\d{10}$/.test(nuevo.value.celular.trim())) {
         error.value = 'El celular debe contener exactamente 10 dígitos numéricos.';
+        return;
+      }
+
+      // Validación de email (requerido y formato)
+      if (!nuevo.value.email.trim()) {
+        error.value = 'El campo email es requerido.';
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(nuevo.value.email.trim())) {
+        error.value = 'El formato del email no es válido.';
         return;
       }
 
@@ -197,10 +285,12 @@ export default {
           await axios.put(`http://localhost:3000/api/duenos/${idEditando.value}`, nuevo.value, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
           });
+          showSuccessNotification('Dueño editado correctamente');
         } else {
           await axios.post('http://localhost:3000/api/duenos/registro', nuevo.value, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
           });
+          showSuccessNotification('Dueño registrado correctamente');
         }
         closeModal();
         await fetchDuenos();
@@ -224,6 +314,7 @@ export default {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         await fetchDuenos();
+        showSuccessNotification('Dueño eliminado correctamente');
       } catch (e) {
         alert(e.response?.data?.error || 'Error al eliminar dueño');
       }
@@ -279,8 +370,14 @@ export default {
       error,
       editando,
       editDueno,
-      deleteDueno
-      , showCard, duenoCard, viewDueno, closeCard
+      deleteDueno,
+      showCard, 
+      duenoCard, 
+      viewDueno, 
+      closeCard,
+      showNotification,
+      notificationMessage,
+      hideNotification
     };
   }
 };

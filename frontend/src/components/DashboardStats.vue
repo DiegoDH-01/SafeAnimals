@@ -70,7 +70,7 @@
     <div class="charts-container">
       <!-- Gráfica de Citas por Mes -->
       <div class="chart-card">
-        <h3 class="chart-title">Citas por Mes</h3>
+        <h3 class="chart-title">Citas</h3>
         <div class="chart-wrapper">
           <Line
             v-if="chartData.citasPorMes"
