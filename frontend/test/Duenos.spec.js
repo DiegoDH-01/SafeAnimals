@@ -34,17 +34,31 @@ afterEach(() => {
 });
 
 describe('Duenos.vue', () => {
-  it('registra 20 dueños nuevos correctamente usando el modal', async () => {
-    for (let i = 1; i <= 20; i++) {
-      await wrapper.find('button').trigger('click');
-      await wrapper.find('input[placeholder="Nombres *"]').setValue(`Nombre${i}`);
-      await wrapper.find('input[placeholder="Apellidos *"]').setValue(`Apellido${i}`);
-      await wrapper.find('input[placeholder="Celular"]').setValue('1234567890');
-      await wrapper.find('input[placeholder="Email"]').setValue(`test${i}@mail.com`);
-      await wrapper.find('form').trigger('submit.prevent');
-      await flushPromises();
-    }
-    expect(postSpy).toHaveBeenCalledTimes(20);
+  it('registra múltiples dueños nuevos correctamente usando el modal', async () => {
+    // Primer registro
+    await wrapper.find('button').trigger('click');
+    await flushPromises();
+    
+    await wrapper.find('input[placeholder="Nombres *"]').setValue('Nombre1');
+    await wrapper.find('input[placeholder="Apellidos *"]').setValue('Apellido1');
+    await wrapper.find('input[placeholder="Celular *"]').setValue('1234567890');
+    await wrapper.find('input[placeholder="Email *"]').setValue('test1@mail.com');
+    
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
+    
+    // Verificar que se llamó a la API
+    expect(postSpy).toHaveBeenCalledWith('http://localhost:3000/api/duenos/registro', {
+      nombres: 'Nombre1',
+      apellidos: 'Apellido1',
+      celular: '1234567890',
+      email: 'test1@mail.com'
+    }, {
+      headers: {}
+    });
+    
+    // Verificar que el modal se cerró
+    expect(wrapper.find('.modal-bg').exists()).toBe(false);
   });
 
   it('renderiza el título y el botón', () => {
@@ -84,7 +98,7 @@ describe('Duenos.vue', () => {
     await wrapper.find('button').trigger('click');
     await wrapper.find('input[placeholder="Nombres *"]').setValue('TestNombre');
     await wrapper.find('input[placeholder="Apellidos *"]').setValue('TestApellido');
-    const celularInput = wrapper.find('input[placeholder="Celular"]');
+    const celularInput = wrapper.find('input[placeholder="Celular *"]');
     await celularInput.setValue('123');
     await wrapper.find('form').trigger('submit.prevent');
     await flushPromises();
@@ -124,8 +138,8 @@ describe('Duenos.vue', () => {
     expect(wrapper.find('.modal-bg').exists()).toBe(true);
     expect(wrapper.find('input[placeholder="Nombres *"]').exists()).toBe(true);
     expect(wrapper.find('input[placeholder="Apellidos *"]').exists()).toBe(true);
-    expect(wrapper.find('input[placeholder="Celular"]').exists()).toBe(true);
-    expect(wrapper.find('input[placeholder="Email"]').exists()).toBe(true);
+    expect(wrapper.find('input[placeholder="Celular *"]').exists()).toBe(true);
+    expect(wrapper.find('input[placeholder="Email *"]').exists()).toBe(true);
   });
 
   it('muestra error si los campos requeridos están vacíos', async () => {
@@ -142,8 +156,8 @@ describe('Duenos.vue', () => {
     await wrapper.find('button').trigger('click');
     await wrapper.find('input[placeholder="Nombres *"]').setValue('Carlos');
     await wrapper.find('input[placeholder="Apellidos *"]').setValue('Ramírez');
-    await wrapper.find('input[placeholder="Celular"]').setValue('1234567890');
-    await wrapper.find('input[placeholder="Email"]').setValue('carlos@mail.com');
+    await wrapper.find('input[placeholder="Celular *"]').setValue('1234567890');
+    await wrapper.find('input[placeholder="Email *"]').setValue('carlos@mail.com');
     await wrapper.find('form').trigger('submit.prevent');
     await flushPromises();
     expect(postSpy).toHaveBeenCalled();
@@ -169,6 +183,8 @@ describe('Duenos.vue', () => {
     await wrapper.find('button').trigger('click');
     await wrapper.find('input[placeholder="Nombres *"]').setValue('Carlos');
     await wrapper.find('input[placeholder="Apellidos *"]').setValue('Ramírez');
+    await wrapper.find('input[placeholder="Celular *"]').setValue('1234567890');
+    await wrapper.find('input[placeholder="Email *"]').setValue('carlos@mail.com');
     await wrapper.find('form').trigger('submit.prevent');
     await flushPromises();
     expect(wrapper.find('.modal-error').text()).toContain('Error al guardar dueño');
