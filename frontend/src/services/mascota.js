@@ -9,7 +9,14 @@ export async function getMascotas() {
           nombre: m.nombre,
           raza: m.raza,
           foto: m.foto,
-          idDueno: m.idDueno
+          idDueno: m.idDueno,
+          dueno: m.dueno ? {
+            idDueno: m.dueno.idDueno,
+            nombres: m.dueno.nombres,
+            apellidos: m.dueno.apellidos,
+            email: m.dueno.email,
+            celular: m.dueno.celular
+          } : null
         }))
       : [];
   } catch {

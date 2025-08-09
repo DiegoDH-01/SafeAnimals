@@ -75,18 +75,30 @@ export default {
 
     const avanzarEstado = async (servicio) => {
       error.value = '';
-      // Validación sencilla: solo preguntar si el estado es 'Finalizado' (idEstado 3)
+      // Validación para diferentes estados
       const estado = typeof servicio.estado === 'object' && servicio.estado !== null ? servicio.estado : {};
-      if (estado.idEstado === 3 || (estado.nombreEstado && estado.nombreEstado.toLowerCase() === 'finalizado')) {
+      const nombreEstado = estado.nombreEstado ? estado.nombreEstado.toLowerCase() : '';
+      
+      // Confirmación para cambiar de "En proceso" a "Finalizado"
+      if (nombreEstado === 'en proceso' || estado.idEstado === 2) {
+        const seguro = confirm('¿Seguro deseas finalizar el servicio?');
+        if (!seguro) return;
+      }
+      
+      // Confirmación para cambiar de "Finalizado" a "Entregado"
+      if (nombreEstado === 'finalizado' || estado.idEstado === 3) {
         const seguro = confirm('¿Seguro que vas a entregar la mascota?');
         if (!seguro) return;
       }
+      
       try {
         await axios.put(`http://localhost:3000/api/servicios/${servicio.idServicio}/avanzar-estado`);
+        
         // Mostrar mensaje solo si se avanzó desde 'Finalizado' a 'Entregado'
-        if (estado.idEstado === 3 || (estado.nombreEstado && estado.nombreEstado.toLowerCase() === 'finalizado')) {
+        if (nombreEstado === 'finalizado' || estado.idEstado === 3) {
           alert('La mascota fue entregada con éxito.');
         }
+        
         await fetchServicios();
       } catch (e) {
         error.value = e.response?.data?.mensaje || e.response?.data?.message || 'Error al avanzar estado';

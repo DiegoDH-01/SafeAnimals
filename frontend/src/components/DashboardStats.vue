@@ -8,7 +8,7 @@
         </svg>
       </div>
       <h1 class="title">Dashboard de Safe Animals</h1>
-      <p class="subtitle">Estadísticas del sistema veterinario</p>
+      <p class="subtitle">Estadísticas del sistema</p>
     </div>
 
     <!-- 4 Estadísticas Principales -->

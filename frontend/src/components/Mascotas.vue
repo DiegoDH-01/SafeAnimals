@@ -106,16 +106,30 @@
             </div>
             <div class="card-row"><strong>Dueño:</strong> {{ mascotaCard.duenoNombre }}</div>
 
-            <div class="card-row">
+            <!-- Mostrar combobox solo si la mascota tiene citas -->
+            <div v-if="mascotaCard.tieneCitas" class="card-row">
               <label class="flex items-center gap-2">
                 <input type="checkbox" v-model="esDuenoVerificado" />
                 Confirmo que esta persona es el dueño de la mascota
               </label>
             </div>
 
+            <!-- Mostrar mensaje si no tiene citas -->
+            <div v-else class="card-row">
+              <p class="text-gray-600 italic">Esta mascota no tiene citas asignadas.</p>
+            </div>
+
             <div class="flex justify-end pt-2">
-              <button class="modal-btn" :disabled="!esDuenoVerificado" @click="confirmarVerificacion">
+              <button 
+                v-if="mascotaCard.tieneCitas" 
+                class="modal-btn" 
+                :disabled="!esDuenoVerificado" 
+                @click="confirmarVerificacion"
+              >
                 Confirmar verificación
+              </button>
+              <button v-else class="modal-btn" @click="closeCard">
+                Cerrar
               </button>
             </div>
           </div>
@@ -187,16 +201,41 @@ export default {
     const selectedFile = ref(null);
 
     const showCard = ref(false);
-    const mascotaCard = ref({ idMascota: '', nombre: '', raza: '', foto: '', duenoNombre: '' });
+    const mascotaCard = ref({ 
+      idMascota: '', 
+      nombre: '', 
+      raza: '', 
+      foto: '', 
+      duenoNombre: '',
+      tieneCitas: false,
+      citas: []
+    });
     const esDuenoVerificado = ref(false);
 
-    const viewCardMascota = (m) => {
+    // Función para obtener las citas de una mascota específica
+    const obtenerCitasMascota = async (idMascota) => {
+      try {
+        const res = await axios.get(`http://localhost:3000/api/servicios`);
+        const citasMascota = res.data.filter(cita => cita.idMascota === idMascota);
+        return citasMascota;
+      } catch (error) {
+        console.error('Error al obtener citas de la mascota:', error);
+        return [];
+      }
+    };
+
+    const viewCardMascota = async (m) => {
+      // Obtener las citas de la mascota
+      const citas = await obtenerCitasMascota(m.idMascota);
+      
       mascotaCard.value = {
         idMascota: m.idMascota,
         nombre: m.nombre,
         raza: m.raza,
         foto: m.foto,
-        duenoNombre: m.duenoNombre || 'Sin asignar'
+        duenoNombre: m.duenoNombre || 'Sin asignar',
+        tieneCitas: citas.length > 0,
+        citas: citas
       };
       esDuenoVerificado.value = false;
       showCard.value = true;
@@ -204,23 +243,51 @@ export default {
 
     const closeCard = () => {
       showCard.value = false;
-      mascotaCard.value = { idMascota: '', nombre: '', raza: '', foto: '', duenoNombre: '' };
+      mascotaCard.value = { 
+        idMascota: '', 
+        nombre: '', 
+        raza: '', 
+        foto: '', 
+        duenoNombre: '',
+        tieneCitas: false,
+        citas: []
+      };
       esDuenoVerificado.value = false;
     };
 
     const confirmarVerificacion = async () => {
       try {
         const token = localStorage.getItem('token');
+        
+        // Primero confirmar el dueño
         await axios.put(`http://localhost:3000/api/mascotas/${mascotaCard.value.idMascota}/verificar`, 
           { duenio_confirmado: true },
           {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
-          });
-        alert('Dueño confirmado como correcto.');
+          }
+        );
+
+        // Buscar citas con estado "Finalizado" y cambiarlas a "Entregado"
+        const citasFinalizadas = mascotaCard.value.citas.filter(cita => 
+          cita.estado && cita.estado.nombreEstado && 
+          cita.estado.nombreEstado.toLowerCase() === 'finalizado'
+        );
+
+        if (citasFinalizadas.length > 0) {
+          for (const cita of citasFinalizadas) {
+            await axios.put(`http://localhost:3000/api/servicios/${cita.idServicio}/avanzar-estado`, {}, {
+              headers: token ? { Authorization: `Bearer ${token}` } : {}
+            });
+          }
+          alert('Dueño confirmado y citas finalizadas cambiadas a entregado.');
+        } else {
+          alert('Dueño confirmado como correcto.');
+        }
+        
         closeCard();
         await fetchMascotas();
       } catch (e) {
-        alert(e.response?.data?.error || 'Error al confirmar dueño');
+        alert(e.response?.data?.error || e.response?.data?.mensaje || 'Error al confirmar dueño');
       }
     };
 

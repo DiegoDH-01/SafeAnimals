@@ -1,6 +1,6 @@
 <template>
   <footer class="footer">
-    <span>Safe Animals &copy; 2024</span>
+    <span>Safe Animals &copy; 2025</span>
   </footer>
 </template>
 

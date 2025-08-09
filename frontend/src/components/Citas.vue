@@ -70,7 +70,9 @@
             </div>
             <select v-model="form.idMascota" class="modal-input" required>
               <option value="" disabled>Selecciona una mascota</option>
-              <option v-for="m in mascotas" :key="m.id" :value="m.id">{{ m.nombre }}</option>
+              <option v-for="m in mascotas" :key="m.id" :value="m.id">
+                {{ m.nombre }} - {{ m.dueno ? `${m.dueno.nombres} ${m.dueno.apellidos}` : 'Sin dueño' }}
+              </option>
             </select>
             <input
               class="modal-input"
