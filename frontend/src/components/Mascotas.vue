@@ -1,5 +1,5 @@
 <template>
-  <div class="duenos-bg flex flex-col gap-8 px-6 pt-10 pb-8 sm:px-20 sm:pt-16 sm:pb-12 min-h-screen">
+  <div class="mascotas mascotas-container">
     <!-- Success Notification -->
     <transition name="fade">
       <div v-if="showNotification" class="notification notification--success">
@@ -10,31 +10,56 @@
       </div>
     </transition>
 
-    <div class="flex justify-between items-center mb-8">
-      <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Mascotas registradas</h2>
-      <button @click="openModal" class="btn text-xs flex items-center gap-1 w-full sm:w-auto py-3 sm:py-2">
-        <img src="../assets/add.svg" alt="Agregar" width="20" height="20" />
-        <span>Agregar mascota</span>
-      </button>
+    <div class="header-section">
+      <div class="header-content">
+        <div class="header-left">
+          <h1 class="page-title">
+            <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path>
+              <path fill-rule="evenodd" d="M3 8h4v4a2 2 0 002 2h6a2 2 0 002-2V8h4a2 2 0 000-4H3a2 2 0 000 4z" clip-rule="evenodd"></path>
+            </svg>
+            Mascotas registradas
+          </h1>
+          <p class="page-subtitle">Administra las mascotas y sus datos</p>
+        </div>
+        <button @click="openModal" class="add-button text-xs flex items-center gap-2">
+          <img src="../assets/add.svg" alt="Agregar" width="20" height="20" />
+          <span>Agregar mascota</span>
+        </button>
+      </div>
     </div>
 
-    <div class="mb-8">
-      <input v-model="search" type="text" placeholder="Buscar por nombre o raza..." class="duenos-input" />
+
+
+    <div class="search-section">
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+          </svg>
+          <input v-model="search" type="text" placeholder="Buscar por nombre, raza o dueño..." class="search-input" />
+        </div>
+      </div>
     </div>
 
     <div class="table-container overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm mb-8">
       <table class="table min-w-[600px] w-full text-sm text-left">
         <thead>
           <tr>
-            <th class="px-4 py-3 font-semibold">Nombre</th>
-            <th class="px-4 py-3 font-semibold">Raza</th>
+            <th class="px-4 py-3 font-semibold cursor-pointer" @click="setSort('nombre')">Nombre {{ sortIndicator('nombre') }}</th>
+            <th class="px-4 py-3 font-semibold cursor-pointer" @click="setSort('raza')">Raza {{ sortIndicator('raza') }}</th>
             <th class="px-4 py-3 font-semibold">Foto</th>
-            <th class="px-4 py-3 font-semibold">Dueño</th>
-            <th class="px-4 py-3 font-semibold">Dueño Confirmado</th>
+            <th class="px-4 py-3 font-semibold cursor-pointer" @click="setSort('dueno')">Dueño {{ sortIndicator('dueno') }}</th>
+            <th class="px-4 py-3 font-semibold cursor-pointer" @click="setSort('confirmado')">Dueño Confirmado {{ sortIndicator('confirmado') }}</th>
             <th class="px-4 py-3 text-center font-semibold">Acciones</th>
           </tr>
         </thead>
         <tbody>
+          <tr v-if="isLoading">
+            <td colspan="6">
+              <div class="table-loader"><span class="loader"></span> Cargando mascotas...</div>
+            </td>
+          </tr>
           <tr v-for="m in paginatedMascotas" :key="m.idMascota" class="hover:bg-[var(--color2)/10] border-b last:border-0">
             <td class="px-4 py-4 font-medium">{{ m.nombre }}</td>
             <td class="px-4 py-4">{{ m.raza }}</td>
@@ -46,7 +71,7 @@
               <span v-if="m.duenio_confirmado" class="text-green-500 font-bold">Sí</span>
               <span v-else class="text-red-500 font-bold">No</span>
             </td>
-            <td class="px-4 py-4 text-center">
+            <td class="px-4 py-4 text-center table-actions">
               <button @click="editMascota(m)" class="icon-btn" title="Editar">
                 <img src="../assets/edit.svg" alt="Editar" width="28" />
               </button>
@@ -58,16 +83,27 @@
               </button>
             </td>
           </tr>
-          <tr v-if="paginatedMascotas.length === 0">
+          <tr v-if="!isLoading && paginatedMascotas.length === 0">
             <td colspan="6" class="table-empty">No se encontraron mascotas.</td>
           </tr>
         </tbody>
       </table>
 
-      <div v-if="totalPages > 1" class="table-pagination">
-        <button @click="prevPage" :disabled="currentPage === 1" class="table-pagination-btn">Anterior</button>
-        <span class="table-pagination-info">Página {{ currentPage }} de {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages" class="table-pagination-btn">Siguiente</button>
+      <div class="flex items-center justify-between px-2 py-2">
+        <div class="text-sm text-[var(--color2)]">
+          Mostrar
+          <select v-model.number="pageSize" class="ml-1 border rounded px-2 py-1">
+            <option :value="10">10</option>
+            <option :value="25">25</option>
+            <option :value="50">50</option>
+          </select>
+          por página
+        </div>
+        <div v-if="totalPages > 1" class="table-pagination">
+          <button @click="prevPage" :disabled="currentPage === 1" class="table-pagination-btn">Anterior</button>
+          <span class="table-pagination-info">Página {{ currentPage }} de {{ totalPages }}</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="table-pagination-btn">Siguiente</button>
+        </div>
       </div>
     </div>
 
@@ -79,14 +115,23 @@
             <img src="../assets/close.svg" alt="Cerrar" width="32" />
           </button>
           <h3 class="modal-title">{{ editando ? 'Editar mascota' : 'Registrar nueva mascota' }}</h3>
-          <form @submit.prevent="handleSubmit" class="modal-form">
-            <input v-model="mascota.nombre" type="text" placeholder="Nombre *" class="modal-input" required />
-            <input v-model="mascota.raza" type="text" placeholder="Raza *" class="modal-input" required />
-            <input type="file" accept="image/*" @change="handleFileChange" class="modal-input" :required="!editando" />
+          <form @submit.prevent="handleSubmit" class="modal-form" novalidate>
+            <label for="mascota-nombre" class="modal-label">Nombre</label>
+            <input id="mascota-nombre" v-model="mascota.nombre" type="text" placeholder="Nombre *" class="modal-input" required />
+            <label for="mascota-raza" class="modal-label">Raza</label>
+            <input id="mascota-raza" v-model="mascota.raza" type="text" placeholder="Raza *" class="modal-input" required />
+            <label for="mascota-foto" class="modal-label">Foto</label>
+            <input id="mascota-foto" type="file" accept="image/*" @change="handleFileChange" class="modal-input" :required="!editando" />
+            <div v-if="imagePreview || (editando && mascota.foto)" class="flex items-center gap-3">
+              <img v-if="imagePreview" :src="imagePreview" alt="Vista previa" class="modal-preview-img" />
+              <img v-else-if="editando && mascota.foto" :src="`http://localhost:3000/uploads/${mascota.foto}`" alt="Actual" class="modal-preview-img" />
+            </div>
             
+            <label for="mascota-dueno" class="modal-label">Dueño</label>
             <!-- Autocomplete para dueño -->
             <div class="relative">
               <input 
+                id="mascota-dueno"
                 v-model="duenoSearch" 
                 type="text" 
                 placeholder="Buscar dueño *" 
@@ -169,6 +214,7 @@
 </template>
 
 <style src="../styles/table.css"></style>
+<style src="../styles/mascotas.css"></style>
 <style src="../styles/modal.css"></style>
 
 <style scoped>
@@ -207,6 +253,14 @@
   border-radius: 8px;
   display: block;
   margin: 0 auto;
+}
+
+/* Tamaño uniforme de preview en modal de registro/edición */
+.modal-preview-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 /* Autocomplete dropdown styles */
@@ -289,10 +343,11 @@
 import axios from 'axios';
 import { ref, onMounted, computed, watch } from 'vue';
 
-export default {
+    export default {
   name: 'Mascotas',
   setup() {
     const mascotas = ref([]);
+    const isLoading = ref(true);
     const duenos = ref([]);
     const search = ref('');
     const showModal = ref(false);
@@ -303,6 +358,7 @@ export default {
     const currentPage = ref(1);
     const pageSize = ref(10);
     const selectedFile = ref(null);
+    const imagePreview = ref('');
 
     // Autocomplete variables
     const duenoSearch = ref('');
@@ -445,16 +501,29 @@ export default {
     };
 
     const handleFileChange = (event) => {
-      selectedFile.value = event.target.files[0];
+      const file = event.target.files && event.target.files[0];
+      selectedFile.value = file || null;
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => { imagePreview.value = String(e.target?.result || ''); };
+        reader.readAsDataURL(file);
+      } else {
+        imagePreview.value = '';
+      }
     };
 
     const fetchMascotas = async () => {
-      const res = await axios.get('http://localhost:3000/api/mascotas');
-      mascotas.value = res.data.map(m => ({
-        ...m,
-        duenoNombre: m.dueno ? `${m.dueno.nombres} ${m.dueno.apellidos}` : 'Sin asignar',
-        duenio_confirmado: m.duenio_confirmado || false
-      }));
+      isLoading.value = true;
+      try {
+        const res = await axios.get('http://localhost:3000/api/mascotas');
+        mascotas.value = res.data.map(m => ({
+          ...m,
+          duenoNombre: m.dueno ? `${m.dueno.nombres} ${m.dueno.apellidos}` : 'Sin asignar',
+          duenio_confirmado: m.duenio_confirmado || false
+        }));
+      } finally {
+        isLoading.value = false;
+      }
     };
 
     const fetchDuenos = async () => {
@@ -468,6 +537,7 @@ export default {
       selectedFile.value = null;
       duenoSearch.value = '';
       filteredDuenos.value = [];
+      imagePreview.value = '';
     };
 
     const closeModal = () => {
@@ -478,6 +548,7 @@ export default {
       selectedFile.value = null;
       duenoSearch.value = '';
       filteredDuenos.value = [];
+      imagePreview.value = '';
     };
 
     const handleSubmit = async () => {
@@ -536,6 +607,7 @@ export default {
       }
       
       showModal.value = true;
+      imagePreview.value = '';
     };
 
     const deleteMascota = async (m) => {
@@ -555,9 +627,27 @@ export default {
     const filteredMascotas = computed(() => {
       if (!search.value) return mascotas.value;
       const s = search.value.toLowerCase();
-      return mascotas.value.filter(m =>
-        m.nombre.toLowerCase().includes(s) || m.raza.toLowerCase().includes(s)
-      );
+      return mascotas.value.filter(m => {
+        const nombre = (m.nombre || '').toLowerCase();
+        const raza = (m.raza || '').toLowerCase();
+        const dueno = (m.duenoNombre || '').toLowerCase();
+        return nombre.includes(s) || raza.includes(s) || dueno.includes(s);
+      });
+    });
+
+    // Orden
+    const sortKey = ref('nombre');
+    const sortDir = ref('asc');
+    const sortedMascotas = computed(() => {
+      const arr = [...filteredMascotas.value];
+      const dir = sortDir.value === 'asc' ? 1 : -1;
+      return arr.sort((a, b) => {
+        if (sortKey.value === 'nombre') return a.nombre.localeCompare(b.nombre) * dir;
+        if (sortKey.value === 'raza') return a.raza.localeCompare(b.raza) * dir;
+        if (sortKey.value === 'dueno') return (a.duenoNombre || '').localeCompare(b.duenoNombre || '') * dir;
+        if (sortKey.value === 'confirmado') return ((a.duenio_confirmado?1:0) - (b.duenio_confirmado?1:0)) * dir;
+        return 0;
+      });
     });
 
     const totalPages = computed(() =>
@@ -566,7 +656,7 @@ export default {
 
     const paginatedMascotas = computed(() => {
       const start = (currentPage.value - 1) * pageSize.value;
-      return filteredMascotas.value.slice(start, start + pageSize.value);
+      return sortedMascotas.value.slice(start, start + pageSize.value);
     });
 
     const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
@@ -579,7 +669,7 @@ export default {
       await fetchDuenos();
     });
 
-    return {
+      return {
       mascotas,
       duenos,
       search,
@@ -604,7 +694,16 @@ export default {
       viewCardMascota,
       closeCard,
       confirmarVerificacion,
-      mascotaImgClass: 'mascota-img',
+       mascotaImgClass: 'mascota-img',
+       isLoading,
+       imagePreview,
+      // Orden
+      sortKey,
+      sortDir,
+      setSort: (key) => { sortKey.value = key; sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'; },
+      sortIndicator: (key) => sortKey.value === key ? (sortDir.value === 'asc' ? '▲' : '▼') : '',
+      kpiConfirmadas: computed(() => mascotas.value.filter(m => m.duenio_confirmado).length),
+      kpiSinDueno: computed(() => mascotas.value.filter(m => !m.duenoNombre || m.duenoNombre === 'Sin asignar').length),
       // Autocomplete variables
       duenoSearch,
       showDuenosDropdown,
