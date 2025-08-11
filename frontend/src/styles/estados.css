@@ -1,0 +1,190 @@
+/* Estilos específicos para Estados de Servicios, alineados con Citas e Historial */
+
+.estados-container {
+  min-height: 100vh;
+  background: var(--color-form-bg);
+  color: var(--color-text);
+  padding: 2rem 1.5rem;
+  overflow-x: auto;
+}
+
+/* Header Section Styles */
+.header-section {
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 20px 40px rgba(128, 56, 87, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.header-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.page-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Estilos para la tabla de estados */
+.table thead th {
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  color: #fff;
+  border-bottom-color: rgba(255,255,255,0.2);
+}
+
+/* Estilos para avatares de mascotas */
+.pet-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  color: #fff;
+  margin-right: 0.75rem;
+}
+
+.pet-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Estilos para avatares de usuarios */
+.user-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  color: #fff;
+  margin-right: 0.75rem;
+}
+
+/* Estilos para las celdas de mascota y usuario */
+.pet-cell, .user-cell {
+  display: flex;
+  align-items: center;
+}
+
+.pet-name, .user-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Estilos para badges de estado */
+.status-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.estado-recibido {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+}
+
+.status-badge.estado-proceso {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+}
+
+.status-badge.estado-finalizado {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+}
+
+.status-badge.estado-entregado {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  color: #be185d;
+}
+
+/* Estilos para botones de acción */
+.icon-btn--avanza {
+  background: #e0f7fa;
+  border-radius: 50%;
+  border: 1.5px solid var(--color2);
+  transition: background 0.2s;
+}
+
+.icon-btn--avanza:hover {
+  background: #b2ebf2;
+}
+
+.icon-btn--retrocede {
+  background: #fff3e0;
+  border-radius: 50%;
+  border: 1.5px solid var(--color2);
+  transition: background 0.2s;
+}
+
+.icon-btn--retrocede:hover {
+  background: #ffe0b2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header-section {
+    padding: 1.5rem;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+}
