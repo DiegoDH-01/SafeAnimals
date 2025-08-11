@@ -1,0 +1,36 @@
+/* Estilos específicos para Mascotas, alineados con Citas/Dueños */
+
+.mascotas-container {
+  min-height: 100vh;
+  background: var(--color-form-bg);
+  color: var(--color-text);
+  padding: 2rem 1.5rem;
+}
+
+.mascotas .header-section {
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 20px 40px rgba(128,56,87,0.15);
+  position: relative;
+  overflow: hidden;
+}
+.mascotas .header-content { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+.mascotas .header-left { flex: 1; }
+.mascotas .page-title { font-size: 2.5rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 1rem; }
+.mascotas .title-icon { width: 2rem; height: 2rem; color: #fff; }
+.mascotas .page-subtitle { color: rgba(255,255,255,0.9); margin: 0; }
+.mascotas .add-button { background: var(--color-btn); color: #fff; border: none; padding: 1rem 2rem; border-radius: 15px; font-weight: 700; cursor: pointer; transition: all .3s ease; display: flex; align-items: center; gap: .6rem; box-shadow: 0 10px 25px rgba(128,56,87,.25); }
+.mascotas .add-button:hover { background: var(--color-btn-hover); box-shadow: 0 15px 35px rgba(128,56,87,.35); transform: translateY(-1px); }
+
+/* Buscador */
+.mascotas .search-section { background: #fff; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(89, 38, 63, 0.08); }
+.mascotas .search-container { display: flex; gap: 1.5rem; }
+.mascotas .search-input-wrapper { position: relative; flex: 1; }
+.mascotas .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 1.25rem; height: 1.25rem; color: #64748b; z-index: 1; }
+.mascotas .search-input { width: 100%; padding: 1rem 1rem 1rem 3rem; border: 1.5px solid var(--color-border); border-radius: 12px; background: var(--color-form-bg); transition: all .2s; }
+.mascotas .search-input:focus { outline: none; border-color: var(--color3); box-shadow: 0 0 0 3px rgba(180, 88, 118, 0.15); }
+
+/* Tabla: usa estilos base de table.css; los headers ya van con color del sistema allí */
+

@@ -1,14 +1,42 @@
 <template>
-  <div class="duenos-bg flex flex-col gap-8 px-6 pt-10 pb-8 sm:px-20 sm:pt-16 sm:pb-12 min-h-screen">
-    <div class="flex justify-between items-center mb-8">
-      <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Dueños registrados</h2>
-      <button @click="openModal" class="btn text-xs flex items-center gap-1 w-full sm:w-auto py-3 sm:py-2">
-        <img src="../assets/add.svg" alt="Agregar" width="20" height="20" class="inline-block align-middle" />
-        <span class="inline-block align-middle">Agregar dueño</span>
-      </button>
+  <div class="duenos duenos-container">
+    <!-- Success Notification -->
+    <transition name="fade">
+      <div v-if="showNotification" class="notification notification--success">
+        <span>{{ notificationMessage }}</span>
+        <button @click="hideNotification" class="notification-close">
+          <img src="../assets/close.svg" alt="Cerrar" width="16" height="16" />
+        </button>
+      </div>
+    </transition>
+
+    <div class="header-section">
+      <div class="header-content">
+        <div class="header-left">
+          <h1 class="page-title">
+            <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+            </svg>
+            Dueños registrados
+          </h1>
+          <p class="page-subtitle">Administra la información de los dueños</p>
+        </div>
+        <button @click="openModal" class="add-button text-xs flex items-center gap-2">
+          <img src="../assets/add.svg" alt="Agregar" width="20" height="20" />
+          <span>Agregar dueño</span>
+        </button>
+      </div>
     </div>
-    <div class="mb-8">
-      <input v-model="search" type="text" placeholder="Buscar por nombre, apellido o email..." class="duenos-input" />
+
+    <div class="search-section">
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+          </svg>
+          <input v-model="search" type="text" placeholder="Buscar por nombre, apellido o email..." class="search-input" />
+        </div>
+      </div>
     </div>
     <div class="table-container overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm mb-8">
       <table class="table min-w-[600px] w-full text-sm text-left">
@@ -60,11 +88,19 @@
           <h3 class="modal-title">{{ editando ? 'Editar dueño' : 'Registrar nuevo dueño' }}</h3>
           <form @submit.prevent="handleSubmit" class="modal-form">
             <div class="modal-row">
-              <input v-model="nuevo.nombres" type="text" placeholder="Nombres *" class="modal-input" required />
-              <input v-model="nuevo.apellidos" type="text" placeholder="Apellidos *" class="modal-input" required />
+              <div class="flex-1 min-w-0">
+                <label for="dueno-nombres" class="modal-label">Nombres</label>
+                <input id="dueno-nombres" v-model="nuevo.nombres" type="text" placeholder="Nombres *" class="modal-input" required />
+              </div>
+              <div class="flex-1 min-w-0">
+                <label for="dueno-apellidos" class="modal-label">Apellidos</label>
+                <input id="dueno-apellidos" v-model="nuevo.apellidos" type="text" placeholder="Apellidos *" class="modal-input" required />
+              </div>
             </div>
-            <input v-model="nuevo.celular" type="text" placeholder="Celular" class="modal-input" />
-            <input v-model="nuevo.email" type="email" placeholder="Email" class="modal-input" />
+            <label for="dueno-celular" class="modal-label">Celular</label>
+            <input id="dueno-celular" v-model="nuevo.celular" type="tel" placeholder="Celular *" class="modal-input" required />
+            <label for="dueno-email" class="modal-label">Email</label>
+            <input id="dueno-email" v-model="nuevo.email" type="email" placeholder="Email *" class="modal-input" required />
             <div class="modal-actions">
               <button type="button" @click="closeModal" class="modal-btn modal-btn--cancel">Cancelar</button>
               <button type="submit" class="modal-btn">{{ editando ? 'Guardar cambios' : 'Registrar dueño' }}</button>
@@ -95,6 +131,7 @@
 </template>
 
 <style src="../styles/table.css"></style>
+<style src="../styles/duenos.css"></style>
 <style src="../styles/modal.css"></style>
 
 <style scoped>
@@ -127,6 +164,51 @@
   padding: 0.7rem 1rem;
   border-radius: 0.5rem;
 }
+
+/* Notification Styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 500;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification--success {
+  background-color: #10b981;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-close:hover {
+  opacity: 0.8;
+}
+
+/* Fade transition for notifications */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
 </style>
 
 
@@ -151,9 +233,24 @@ export default {
     // Paginación
     const currentPage = ref(1);
     const pageSize = ref(10);
+    // Notifications
+    const showNotification = ref(false);
+    const notificationMessage = ref('');
 
     const fetchDuenos = async () => {
       duenos.value = await getDuenos();
+    };
+
+    const showSuccessNotification = (message) => {
+      notificationMessage.value = message;
+      showNotification.value = true;
+      setTimeout(() => {
+        hideNotification();
+      }, 3000);
+    };
+
+    const hideNotification = () => {
+      showNotification.value = false;
     };
 
     const openModal = () => {
@@ -180,14 +277,32 @@ export default {
     const handleSubmit = async () => {
       error.value = '';
 
-      // Validación manual de campos requeridos
+      // Validación de campos requeridos
       if (!nuevo.value.nombres.trim() || !nuevo.value.apellidos.trim()) {
         error.value = 'Los campos nombres y apellidos son requeridos.';
         return;
       }
 
-      if (nuevo.value.celular && !/^\d{10}$/.test(nuevo.value.celular)) {
+      // Validación de celular (requerido y formato)
+      if (!nuevo.value.celular.trim()) {
+        error.value = 'El campo celular es requerido.';
+        return;
+      }
+
+      if (!/^\d{10}$/.test(nuevo.value.celular.trim())) {
         error.value = 'El celular debe contener exactamente 10 dígitos numéricos.';
+        return;
+      }
+
+      // Validación de email (requerido y formato)
+      if (!nuevo.value.email.trim()) {
+        error.value = 'El campo email es requerido.';
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(nuevo.value.email.trim())) {
+        error.value = 'El formato del email no es válido.';
         return;
       }
 
@@ -197,10 +312,12 @@ export default {
           await axios.put(`http://localhost:3000/api/duenos/${idEditando.value}`, nuevo.value, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
           });
+          showSuccessNotification('Dueño editado correctamente');
         } else {
           await axios.post('http://localhost:3000/api/duenos/registro', nuevo.value, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
           });
+          showSuccessNotification('Dueño registrado correctamente');
         }
         closeModal();
         await fetchDuenos();
@@ -224,6 +341,7 @@ export default {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         await fetchDuenos();
+        showSuccessNotification('Dueño eliminado correctamente');
       } catch (e) {
         alert(e.response?.data?.error || 'Error al eliminar dueño');
       }
@@ -241,13 +359,21 @@ export default {
       );
     });
 
+    const sortKey = ref('nombres');
+    const sortDir = ref('asc');
+    const sortedDuenos = computed(() => {
+      const arr = [...filteredDuenos.value];
+      const dir = sortDir.value === 'asc' ? 1 : -1;
+      return arr.sort((a,b)=> (a[sortKey.value]||'').localeCompare(b[sortKey.value]||'') * dir);
+    });
+
     const totalPages = computed(() => {
       return Math.max(1, Math.ceil(filteredDuenos.value.length / pageSize.value));
     });
 
     const paginatedDuenos = computed(() => {
       const start = (currentPage.value - 1) * pageSize.value;
-      return filteredDuenos.value.slice(start, start + pageSize.value);
+      return sortedDuenos.value.slice(start, start + pageSize.value);
     });
 
     const nextPage = () => {
@@ -279,8 +405,14 @@ export default {
       error,
       editando,
       editDueno,
-      deleteDueno
-      , showCard, duenoCard, viewDueno, closeCard
+      deleteDueno,
+      showCard, 
+      duenoCard, 
+      viewDueno, 
+      closeCard,
+      showNotification,
+      notificationMessage,
+      hideNotification
     };
   }
 };

@@ -68,6 +68,6 @@ describe('Mascotas.vue', () => {
     await wrapper.find('button[title="Editar"]').trigger('click')
     expect(wrapper.find('input[placeholder="Nombre *"]').element.value).toBe('Luna')
     expect(wrapper.find('input[placeholder="Raza *"]').element.value).toBe('Poodle')
-    expect(wrapper.find('select').element.value).toBe('1')
+    expect(wrapper.find('input[placeholder="Buscar dueño *"]').exists()).toBe(true)
   })
 })

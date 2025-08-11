@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import * as servicioService from '../../backend/services/servicio.Service'
 import { Servicio, EstadoServicio } from '../../backend/models'
 
+// Mock explícito del módulo de notificación para evitar conexión a Twilio o DB
+vi.mock('../../backend/services/notificacion.Service', () => ({
+  registrarNotificacion: vi.fn(() => Promise.resolve())
+}))
+
 describe('Control de Estados del Servicio', () => {
   const servicioMock = {
     idServicio: 1,
