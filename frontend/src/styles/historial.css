@@ -1,0 +1,77 @@
+/* Estilos específicos para Historial de Servicios, alineados con Citas */
+
+.historial-container {
+  min-height: 100vh;
+  background: var(--color-form-bg);
+  color: var(--color-text);
+  padding: 2rem 1.5rem;
+  overflow-x: auto; /* evita recorte horizontal */
+}
+
+.historial .header-section {
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 20px 40px rgba(128,56,87,0.15);
+}
+.historial .header-content { display:flex; justify-content: space-between; align-items: center; }
+.historial .page-title { font-size: 2.5rem; font-weight: 800; color: #fff; margin: 0 0 .5rem 0; display:flex; align-items:center; gap:1rem; }
+.historial .title-icon { width: 2rem; height: 2rem; color: #fff; }
+.historial .page-subtitle { color: rgba(255,255,255,.9); margin: 0; }
+
+/* Buscador */
+.historial .search-section { background: #fff; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(89,38,63,.08); }
+.historial .search-container { display:flex; gap: 1.5rem; }
+.historial .search-input-wrapper { position:relative; flex:1; }
+.historial .search-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); width:1.25rem; height:1.25rem; color:#64748b; z-index:1; }
+.historial .search-input { width:100%; padding:1rem 1rem 1rem 3rem; border:1.5px solid var(--color-border); border-radius:12px; background:var(--color-form-bg); transition: all .2s; }
+.historial .search-input:focus { outline:none; border-color: var(--color3); box-shadow: 0 0 0 3px rgba(180,88,118,.15); }
+
+/* Cabecera de tabla con color del sistema */
+.historial .table thead th {
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  color: #fff;
+}
+
+/* Asegura que la tabla no tenga márgenes negativos o padding que desalineen */
+.historial .table { border-collapse: separate; border-spacing: 0; }
+.historial .table-container { width: 100%; overflow-x: auto; }
+
+/* Contenido de celdas (alineado a Citas) */
+.historial .date-cell,
+.historial .pet-cell,
+.historial .user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.historial .date-icon,
+.historial .pet-avatar,
+.historial .user-avatar {
+  width: 2.4rem;
+  height: 2.4rem;
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.historial .pet-avatar { overflow: hidden; position: relative; }
+.historial .pet-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.historial .date-text { font-weight: 600; color: #1e293b; }
+.historial .pet-name, .historial .user-name { font-weight: 600; color: #1e293b; }
+
+.historial .header-content { display:flex; align-items:center; gap:.5rem; }
+.historial .header-icon { width: 1rem; height: 1rem; color: #fff; }
+
+/* Reducir padding para evitar overflow en 100% */
+.historial .table th,
+.historial .table td { padding: 0.9rem 0.8rem; }
+
+
