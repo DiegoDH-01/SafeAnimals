@@ -4,7 +4,7 @@
 
 ![SafeAnimals Logo](frontend/src/assets/logo.png)
 
-**Sistema integral de gestión para clínicas veterinarias y servicios de cuidado animal**
+**Sistema integral de gestión para servicios de cuidado animal**
 
 [![Vue.js](https://img.shields.io/badge/Vue.js-3.5.13-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)](https://vuejs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
