@@ -1,5 +1,5 @@
 <template>
-  <div class="duenos-bg flex flex-col gap-8 px-6 pt-10 pb-8 sm:px-20 sm:pt-16 sm:pb-12 min-h-screen">
+  <div class="duenos duenos-container">
     <!-- Success Notification -->
     <transition name="fade">
       <div v-if="showNotification" class="notification notification--success">
@@ -10,15 +10,33 @@
       </div>
     </transition>
 
-    <div class="flex justify-between items-center mb-8">
-      <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Dueños registrados</h2>
-      <button @click="openModal" class="btn text-xs flex items-center gap-1 w-full sm:w-auto py-3 sm:py-2">
-        <img src="../assets/add.svg" alt="Agregar" width="20" height="20" class="inline-block align-middle" />
-        <span class="inline-block align-middle">Agregar dueño</span>
-      </button>
+    <div class="header-section">
+      <div class="header-content">
+        <div class="header-left">
+          <h1 class="page-title">
+            <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+            </svg>
+            Dueños registrados
+          </h1>
+          <p class="page-subtitle">Administra la información de los dueños</p>
+        </div>
+        <button @click="openModal" class="add-button text-xs flex items-center gap-2">
+          <img src="../assets/add.svg" alt="Agregar" width="20" height="20" />
+          <span>Agregar dueño</span>
+        </button>
+      </div>
     </div>
-    <div class="mb-8">
-      <input v-model="search" type="text" placeholder="Buscar por nombre, apellido o email..." class="duenos-input" />
+
+    <div class="search-section">
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+          </svg>
+          <input v-model="search" type="text" placeholder="Buscar por nombre, apellido o email..." class="search-input" />
+        </div>
+      </div>
     </div>
     <div class="table-container overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm mb-8">
       <table class="table min-w-[600px] w-full text-sm text-left">
@@ -70,11 +88,19 @@
           <h3 class="modal-title">{{ editando ? 'Editar dueño' : 'Registrar nuevo dueño' }}</h3>
           <form @submit.prevent="handleSubmit" class="modal-form">
             <div class="modal-row">
-              <input v-model="nuevo.nombres" type="text" placeholder="Nombres *" class="modal-input" required />
-              <input v-model="nuevo.apellidos" type="text" placeholder="Apellidos *" class="modal-input" required />
+              <div class="flex-1 min-w-0">
+                <label for="dueno-nombres" class="modal-label">Nombres</label>
+                <input id="dueno-nombres" v-model="nuevo.nombres" type="text" placeholder="Nombres *" class="modal-input" required />
+              </div>
+              <div class="flex-1 min-w-0">
+                <label for="dueno-apellidos" class="modal-label">Apellidos</label>
+                <input id="dueno-apellidos" v-model="nuevo.apellidos" type="text" placeholder="Apellidos *" class="modal-input" required />
+              </div>
             </div>
-            <input v-model="nuevo.celular" type="tel" placeholder="Celular *" class="modal-input" required />
-            <input v-model="nuevo.email" type="email" placeholder="Email *" class="modal-input" required />
+            <label for="dueno-celular" class="modal-label">Celular</label>
+            <input id="dueno-celular" v-model="nuevo.celular" type="tel" placeholder="Celular *" class="modal-input" required />
+            <label for="dueno-email" class="modal-label">Email</label>
+            <input id="dueno-email" v-model="nuevo.email" type="email" placeholder="Email *" class="modal-input" required />
             <div class="modal-actions">
               <button type="button" @click="closeModal" class="modal-btn modal-btn--cancel">Cancelar</button>
               <button type="submit" class="modal-btn">{{ editando ? 'Guardar cambios' : 'Registrar dueño' }}</button>
@@ -105,6 +131,7 @@
 </template>
 
 <style src="../styles/table.css"></style>
+<style src="../styles/duenos.css"></style>
 <style src="../styles/modal.css"></style>
 
 <style scoped>
@@ -332,13 +359,21 @@ export default {
       );
     });
 
+    const sortKey = ref('nombres');
+    const sortDir = ref('asc');
+    const sortedDuenos = computed(() => {
+      const arr = [...filteredDuenos.value];
+      const dir = sortDir.value === 'asc' ? 1 : -1;
+      return arr.sort((a,b)=> (a[sortKey.value]||'').localeCompare(b[sortKey.value]||'') * dir);
+    });
+
     const totalPages = computed(() => {
       return Math.max(1, Math.ceil(filteredDuenos.value.length / pageSize.value));
     });
 
     const paginatedDuenos = computed(() => {
       const start = (currentPage.value - 1) * pageSize.value;
-      return filteredDuenos.value.slice(start, start + pageSize.value);
+      return sortedDuenos.value.slice(start, start + pageSize.value);
     });
 
     const nextPage = () => {
