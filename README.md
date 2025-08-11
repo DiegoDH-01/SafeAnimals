@@ -17,7 +17,7 @@
 
 ## 📋 Descripción del Proyecto
 
-**SafeAnimals** es una aplicación web completa diseñada para la gestión integral de servicios de cuidado animal. El sistema permite administrar mascotas, dueños, servicios veterinarios, citas y notificaciones de manera eficiente y organizada.
+**SafeAnimals** es una aplicación web diseñada para la gestión integral de servicios de cuidado animal. El sistema permite administrar mascotas, dueños, servicios veterinarios, citas y notificaciones de manera eficiente y organizada.
 
 ### 🎯 Funcionalidades Principales
 
