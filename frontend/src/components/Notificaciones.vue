@@ -1,7 +1,19 @@
 <template>
     <div class="notificaciones-bg flex flex-col gap-8 px-6 pt-10 pb-20 sm:px-20 sm:pt-16 sm:pb-28 min-h-screen">
-        <div class="flex justify-between items-center mt-4 mb-2">
-            <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Notificaciones</h2>
+        <div class="historial">
+        <div class="header-section" style="border-radius: 20px;">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="page-title">
+                        <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                        </svg>
+                        Notificaciones
+                    </h1>
+                    <p class="page-subtitle">Historial y filtros de notificaciones</p>
+                </div>
+            </div>
+        </div>
         </div>
 
         <!-- Buscador sticky y separado -->
@@ -142,6 +154,7 @@ export default {
 };
 </script>
 
+<style src="../styles/headers.css"></style>
 <style scoped>
 .notificaciones-bg {
     background: #f8f9fb;

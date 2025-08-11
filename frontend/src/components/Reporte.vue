@@ -10,8 +10,20 @@
             </div>
         </transition>
 
-        <div class="flex justify-between items-center mb-8">
-            <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Reporte Diario de Entregas</h2>
+        <div class="historial">
+        <div class="header-section" style="border-radius: 20px;">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="page-title">
+                        <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                        </svg>
+                        Reporte Diario de Entregas
+                    </h1>
+                    <p class="page-subtitle">Servicios finalizados y entregados</p>
+                </div>
+            </div>
+        </div>
         </div>
 
         <div class="table-container overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm mb-8">
@@ -144,6 +156,7 @@ export default {
 </script>
 
 <style src="../styles/table.css"></style>
+<style src="../styles/headers.css"></style>
 <style scoped>
 /* Notification Styles */
 .notification {
