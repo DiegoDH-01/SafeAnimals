@@ -1,5 +1,5 @@
 <template>
-  <div class="duenos-bg flex flex-col gap-8 px-6 pt-10 pb-8 sm:px-20 sm:pt-16 sm:pb-12 min-h-screen">
+  <div class="citas citas-container">
     <!-- Success Notification -->
     <transition name="fade">
       <div v-if="showNotification" class="notification notification--success">
@@ -10,23 +10,44 @@
       </div>
     </transition>
 
-    <div class="flex justify-between items-center mb-8">
-      <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color2)]">Citas agendadas</h2>
-      <button @click="openModal" class="btn text-xs flex items-center gap-1 w-full sm:w-auto py-3 sm:py-2">
-        <img src="../assets/add.svg" alt="Agregar" width="20" height="20" class="inline-block align-middle" />
-        <span class="inline-block align-middle">Agregar cita</span>
-      </button>
-    </div>
-    <div class="mb-8">
-      <div class="flex flex-wrap gap-2 sm:gap-4 items-center">
-        <div class="flex-1 min-w-[220px]">
-          <input v-model="search" type="text" placeholder="Buscar por referencia, mascota, usuario..." class="duenos-input w-full" />
+    <!-- Header Section -->
+    <div class="header-section">
+      <div class="header-content">
+        <div class="header-left">
+          <h1 class="page-title">
+            <svg class="title-icon" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+            </svg>
+            Citas Agendadas
+          </h1>
+          <p class="page-subtitle">Gestiona y organiza todas las citas de mascotas</p>
         </div>
-        <div class="flex-shrink-0">
-          <input v-model="searchFecha" type="date" class="duenos-input w-[170px]" />
+        <button @click="openModal" class="add-button">
+          <svg class="add-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+          </svg>
+          <span>Agregar Cita</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="search-section">
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+          </svg>
+          <input v-model="search" type="text" placeholder="Buscar por referencia, mascota, usuario..." class="search-input" />
+        </div>
+        <div class="search-input-wrapper">
+          <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+          </svg>
+          <input v-model="searchFecha" type="date" class="search-input" />
         </div>
       </div>
     </div>
+
     <div class="table-container overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm mb-8">
       <table class="table min-w-[600px] w-full text-sm text-left">
         <thead>
@@ -43,9 +64,33 @@
           <tr v-for="cita in paginatedCitas" :key="cita.idServicio" class="hover:bg-[var(--color2)/10] border-b last:border-0">
             <td class="px-4 sm:px-6 py-4 font-medium whitespace-nowrap">{{ cita.fechaRegistro }}</td>
             <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.referencia }}</td>
-            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.mascota }}</td>
-            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.usuario }}</td>
-            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">{{ cita.estado }}</td>
+            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+              <div class="pet-cell">
+                <div class="pet-avatar">
+                  <img v-if="getMascotaFotoUrl(cita.idMascota)" :src="getMascotaFotoUrl(cita.idMascota)" alt="Foto" class="pet-avatar-img" />
+                  <svg v-else fill="currentColor" viewBox="0 0 20 20" class="w-5 h-5">
+                    <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path>
+                    <path fill-rule="evenodd" d="M3 8h4v4a2 2 0 002 2h6a2 2 0 002-2V8h4a2 2 0 000-4H3a2 2 0 000 4z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+                <span class="pet-name">{{ cita.mascota }}</span>
+              </div>
+            </td>
+            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+              <div class="user-cell">
+                <div class="user-avatar">
+                  <svg fill="currentColor" viewBox="0 0 20 20" class="w-5 h-5">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+                <span class="user-name">{{ cita.usuario }}</span>
+              </div>
+            </td>
+            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+              <span class="status-badge" :class="estadoColorClass(cita.estado)">
+                {{ cita.estado }}
+              </span>
+            </td>
             <td class="px-4 sm:px-6 py-4 text-center table-actions whitespace-nowrap">
               <button @click="editCita(cita)" class="icon-btn" title="Editar">
                 <img src="../assets/edit.svg" alt="Editar" width="28" height="28" />
@@ -75,13 +120,21 @@
           <h3 class="modal-title">{{ editando ? 'Editar cita' : 'Agendar nueva cita' }}</h3>
           <form @submit.prevent="handleSubmit" class="modal-form">
             <div class="modal-row">
-              <input v-model="form.fechaRegistro" type="date" placeholder="Fecha *" class="modal-input" required />
-              <input v-model="form.referencia" type="text" placeholder="Referencia *" class="modal-input" required />
+              <div class="flex-1 min-w-0">
+                <label for="cita-fecha" class="modal-label">Fecha de Cita</label>
+                <input id="cita-fecha" v-model="form.fechaRegistro" type="date" placeholder="Fecha *" class="modal-input" required />
+              </div>
+              <div class="flex-1 min-w-0">
+                <label for="cita-referencia" class="modal-label">Referencia</label>
+                <input id="cita-referencia" v-model="form.referencia" type="text" placeholder="Referencia *" class="modal-input" required />
+              </div>
             </div>
             
             <!-- Autocomplete para mascota -->
+            <label for="cita-mascota" class="modal-label">Mascota</label>
             <div class="relative">
               <input 
+                id="cita-mascota"
                 v-model="mascotaSearch" 
                 type="text" 
                 placeholder="Buscar mascota *" 
@@ -104,15 +157,11 @@
               </div>
             </div>
 
-            <input
-              class="modal-input"
-              type="text"
-              :value="usuarios.length ? usuarios[0].nombre : ''"
-              readonly
-              tabindex="-1"
-            />
+            <label for="cita-usuario" class="modal-label">Encargado</label>
+            <input id="cita-usuario" class="modal-input" type="text" :value="usuarios.length ? usuarios[0].nombre : ''" readonly tabindex="-1" />
             <div v-if="!editando" class="text-xs text-gray-500 mb-2">El Recepcionista guardado será el actual de la sesión</div>
-            <select v-model="form.idEstadoActual" class="modal-input" required :disabled="!editando">
+            <label for="cita-estado" class="modal-label">Estado</label>
+            <select id="cita-estado" v-model="form.idEstadoActual" class="modal-input" required :disabled="!editando">
               <option v-for="e in estados" :key="e.id" :value="e.id" :selected="form.idEstadoActual === e.id">
                 {{ e.nombre }}
               </option>
@@ -231,6 +280,22 @@ export default {
       estados.value = await getEstados();
     };
 
+    const getMascotaFotoUrl = (idMascota) => {
+      const m = mascotas.value.find(mm => mm.id === idMascota);
+      if (m && m.foto) return `http://localhost:3000/uploads/${m.foto}`;
+      return '';
+    };
+
+    const estadoColorClass = (estado) => {
+      if (!estado) return '';
+      const nombre = String(estado).toLowerCase();
+      if (nombre.includes('recibido')) return 'estado-recibido';
+      if (nombre.includes('en proceso')) return 'estado-proceso';
+      if (nombre.includes('finalizado')) return 'estado-finalizado';
+      if (nombre.includes('entregado')) return 'estado-entregado';
+      return '';
+    };
+
     const openModal = () => {
       showModal.value = true;
       error.value = '';
@@ -333,8 +398,34 @@ export default {
       if (searchFecha.value) {
         arr = arr.filter(c => c.fechaRegistro && c.fechaRegistro.startsWith(searchFecha.value));
       }
-      return arr;
+      
+      // Ordenamiento: primero por estado, luego por fecha más actual
+      return arr.sort((a, b) => {
+        // Primero ordenar por estado (Recibido = 1, En proceso = 2, Finalizado = 3, Entregado = 4)
+        const estadoA = estadoOrder(a?.estado || '');
+        const estadoB = estadoOrder(b?.estado || '');
+        
+        if (estadoA !== estadoB) {
+          return estadoA - estadoB; // Orden ascendente por estado
+        }
+        
+        // Si tienen el mismo estado, ordenar por fecha más actual (descendente)
+        const fechaA = new Date(a?.fechaRegistro || 0);
+        const fechaB = new Date(b?.fechaRegistro || 0);
+        return fechaB - fechaA; // Fecha más reciente primero
+      });
     });
+
+    // Función para ordenar estados (igual que en HistorialServicios)
+    const estadoOrder = (estado) => {
+      if (!estado) return 999;
+      const nombre = String(estado).toLowerCase();
+      if (nombre.includes('recibido')) return 1;
+      if (nombre.includes('en proceso')) return 2;
+      if (nombre.includes('finalizado')) return 3;
+      if (nombre.includes('entregado')) return 4;
+      return 999;
+    };
 
     const totalPages = computed(() => {
       return Math.max(1, Math.ceil(filteredCitas.value.length / pageSize.value));
@@ -388,7 +479,9 @@ export default {
       // Notifications
       showNotification,
       notificationMessage,
-      hideNotification
+      hideNotification,
+      getMascotaFotoUrl,
+      estadoColorClass
     };
   }
 };
@@ -396,6 +489,7 @@ export default {
 
 <style src="../styles/table.css"></style>
 <style src="../styles/modal.css"></style>
+<style src="../styles/citas.css"></style>
 <style scoped>
 .duenos-input {
   width: 100%;
@@ -494,5 +588,260 @@ export default {
 
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
+}
+
+/* Estilos para la tabla de citas */
+.table thead th {
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  color: #fff;
+  border-bottom-color: rgba(255,255,255,0.2);
+}
+
+/* Estilos para avatares de mascotas */
+.pet-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  color: #fff;
+  margin-right: 0.75rem;
+}
+
+.pet-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Estilos para avatares de usuarios */
+.user-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  color: #fff;
+  margin-right: 0.75rem;
+}
+
+/* Estilos para las celdas de mascota y usuario */
+.pet-cell, .user-cell {
+  display: flex;
+  align-items: center;
+}
+
+.pet-name, .user-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Estilos para badges de estado */
+.status-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.estado-recibido {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+}
+
+.status-badge.estado-proceso {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+}
+
+.status-badge.estado-finalizado {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+}
+
+.status-badge.estado-entregado {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  color: #be185d;
+}
+
+/* Header Section Styles */
+.header-section {
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 20px 40px rgba(128, 56, 87, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.header-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.page-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+.add-button {
+  background: var(--color-btn);
+  color: #fff;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 15px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 10px 25px rgba(128, 56, 87, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.add-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.add-button:hover::before {
+  left: 100%;
+}
+
+.add-button:hover {
+  transform: translateY(-2px);
+  background: var(--color-btn-hover);
+  box-shadow: 0 15px 35px rgba(128, 56, 87, 0.35);
+}
+
+.add-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header-section {
+    padding: 1.5rem;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+}
+
+/* Contenedor principal de citas */
+.citas-container {
+  min-height: 100vh;
+  background: var(--color-form-bg);
+  color: var(--color-text);
+  padding: 2rem 1.5rem;
+}
+
+/* Estilos para la sección de búsqueda */
+.search-section {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(89, 38, 63, 0.08);
+}
+
+.search-container {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #64748b;
+  z-index: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-form-bg);
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color3);
+  box-shadow: 0 0 0 3px rgba(180, 88, 118, 0.15);
 }
 </style>
