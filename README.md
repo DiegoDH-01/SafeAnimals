@@ -1,4 +1,4 @@
-# 🐾 SafeAnimals - Sistema de Gestión Veterinaria
+# 🐾 SafeAnimals - Sistema de Gestión de Cuidado Animal
 
 <div align="center">
 
