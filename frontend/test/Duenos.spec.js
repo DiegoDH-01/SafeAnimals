@@ -13,7 +13,6 @@ vi.mock('../src/services/dueno', () => ({
   getDuenos: vi.fn(() => Promise.resolve(mockDuenos))
 }))
 
-let postSpy, putSpy, wrapper
 
 beforeEach(async () => {
   // Mocks globales para JSDOM
