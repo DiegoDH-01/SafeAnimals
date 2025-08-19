@@ -1,5 +1,18 @@
 const servicioService = require('../services/servicio.Service');
 
+const { Servicio } = require('../models');
+
+async function obtenerTodosLosServicios(req, res) {
+  try {
+    const servicios = await servicioService.obtenerHistorialServicios();
+    res.status(200).json(servicios);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener historial: ' + error.message });
+  }
+}
+
+
+
 /**
  * POST /api/servicios
  * Registrar un nuevo servicio
@@ -25,6 +38,20 @@ async function listarTodos(req, res) {
     res.status(500).json({ mensaje: 'Error al obtener los servicios', error: error.message });
   }
 }
+
+/**
+ * GET /api/servicios/entregados
+ * Obtener todos los servicios que ya fueron entregados
+ */
+async function listarEntregados(req, res) {
+  try {
+    const servicios = await servicioService.obtenerEntregados();
+    res.json(servicios);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al obtener los servicios entregados', error: error.message });
+  }
+}
+
 
 /**
  * GET /api/servicios/:id
@@ -114,10 +141,12 @@ async function eliminar(req, res) {
 module.exports = {
   registrar,
   listarTodos,
+  listarEntregados,
   obtenerPorId,
   actualizar,
   cambiarEstado,
   avanzarEstado,
   retrocederEstado,
-  eliminar
+  eliminar,
+  obtenerTodosLosServicios
 };

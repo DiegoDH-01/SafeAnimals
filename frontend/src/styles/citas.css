@@ -1,0 +1,27 @@
+/* Estilos específicos para Citas */
+
+/* Encabezados de tabla con color del sistema */
+.citas .table thead th,
+.citas .data-table thead th.table-header-cell {
+  background: linear-gradient(135deg, var(--color2) 0%, var(--color3) 100%);
+  color: #fff;
+  border-bottom-color: rgba(255,255,255,0.2);
+}
+.citas .data-table thead th .header-icon { color: #fff; }
+
+/* Ajustes del botón del header para mantener consistencia */
+.citas .add-button { padding: 1rem 2rem; border-radius: 15px; }
+
+/* Avatar de mascota */
+.pet-avatar {
+  position: relative;
+  overflow: hidden;
+}
+.pet-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+

@@ -36,6 +36,7 @@
   box-shadow: 0 2px 12px rgba(80,0,40,0.08);
   overflow-x: auto;
   margin-top: 2.5rem;
+  border-radius: 12px;
 }
 
 .table {
@@ -65,24 +66,48 @@
   background: #f3eaf5;
 }
 
+/* Zebra sutil */
+.table tbody tr:nth-child(odd) td {
+  background: rgba(128,56,87,0.02);
+}
+
+/* Hover debe superar zebra */
+.table tbody tr:hover td {
+  background: #f3eaf5;
+}
+
+/* Estado pill para celdas de estado */
+.estado-pill {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+
 .table-actions {
   display: flex;
   justify-content: center;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .icon-btn {
   background: none;
   border: none;
-  padding: 0.2rem;
-  border-radius: 0.3rem;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.05s;
   color: var(--color2);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
+.icon-btn:hover { background: rgba(128,56,87,0.08); }
+.icon-btn:active { transform: translateY(1px); }
+.icon-btn img { width: 22px; height: 22px; }
 
 .icon-btn--delete {
   color: #d32f2f;
@@ -96,6 +121,27 @@
   text-align: center;
   color: #b8a1b8;
   padding: 1.2rem 0;
+}
+
+/* Loader para tablas */
+.table-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.25rem;
+  color: var(--color2, #6a2942);
+}
+.table-loader .loader {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #eee;
+  border-top-color: var(--color2, #6a2942);
+  border-radius: 50%;
+  animation: table-spin 1s linear infinite;
+}
+@keyframes table-spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Responsive para móviles */

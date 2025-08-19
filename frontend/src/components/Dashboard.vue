@@ -20,6 +20,7 @@
         @close="sidebarOpen = false"
         @selectMenu="selectedMenu = $event"
         :selectedMenu="selectedMenu"
+        :role="role"
       />
 
       <main
@@ -40,14 +41,17 @@
         <template v-else-if="selectedMenu === 'estados'">
           <Estados />
         </template>
+        <template v-else-if="selectedMenu === 'historial'">
+          <Historial />
+        </template>
         <template v-else-if="selectedMenu === 'notificaciones'">
           <Notificaciones />
         </template>
+        <template v-else-if="selectedMenu === 'reporte-diario'">
+          <Reporte />
+        </template>
         <template v-else>
-          <h1 class="text-[var(--color2)] font-bold tracking-wide mb-6 text-center">
-            Bienvenido al Dashboard de Safe Animals
-          </h1>
-          <p class="text-center">Aquí irá el contenido principal del sistema.</p>
+          <DashboardStats />
         </template>
       </main>
     </div>
@@ -67,7 +71,10 @@ import Mascotas from './Mascotas.vue';
 import Citas from './Citas.vue';
 import Estados from './Estados.vue';
 import Notificaciones from './Notificaciones.vue';
+import Historial from './HistorialServicios.vue';
 import { getCurrentUser, logout } from '../services/auth.js';
+import Reporte from './Reporte.vue';
+import DashboardStats from './DashboardStats.vue';
 
 
 export default {
@@ -80,7 +87,10 @@ export default {
     Mascotas,
     Citas,
     Estados,
-    Notificaciones
+    Notificaciones,
+    Reporte,
+    DashboardStats,
+    Historial
   },
   setup() {
 
@@ -110,6 +120,7 @@ export default {
           window.location.href = '/';
         }
       } catch (err) {
+        console.log(`Exception while doing something: ${err}`);
         window.location.href = '/';
       }
     };

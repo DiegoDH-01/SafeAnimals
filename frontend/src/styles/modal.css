@@ -52,6 +52,14 @@
   gap: 1rem;
 }
 
+.modal-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color2);
+  margin-bottom: 0.35rem;
+}
+
 .modal-row {
   display: flex;
   gap: 0.7rem;
