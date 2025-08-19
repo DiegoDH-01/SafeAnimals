@@ -40,9 +40,15 @@ jobs:
       run: node -c app.js
 
     # --- FRONTEND ---
+    - name: 🧹 Limpiar dependencias antiguas
+      working-directory: ./frontend
+      run: |
+          rm -rf frontend/node_modules frontend/package-lock.json
+          
     - name: Instalar dependencias del frontend
       working-directory: ./frontend
       run: npm install all
+      
 
     - name: Build del frontend
       working-directory: ./frontend
